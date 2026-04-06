@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>KinéSuivi — Praticien</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0f4f8;--card:#fff;--primary:#1a4a7a;--primary-light:#e8f0fa;--accent:#2a7d4f;--accent-light:#e6f4ed;--orange:#d4622a;--orange-light:#fdf0ea;--red:#c0392b;--red-light:#fdecea;--text:#1a2332;--text-soft:#5a6a7a;--border:#e2e8f0;--shadow:0 2px 16px rgba(26,74,122,0.08);--radius:16px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center}
+.phone{width:100%;max-width:430px;background:var(--bg);min-height:100vh;position:relative;overflow-x:hidden}
+
+/* LOGIN */
+#login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 24px;background:var(--primary)}
+#login-screen::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:rgba(255,255,255,0.05);border-radius:50%}
+#login-screen::after{content:'';position:absolute;bottom:-40px;left:-40px;width:160px;height:160px;background:rgba(255,255,255,0.04);border-radius:50%}
+.login-logo{font-family:'DM Serif Display',serif;font-size:32px;color:white;margin-bottom:8px;position:relative;z-index:1}
+.login-sub{font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:48px;position:relative;z-index:1}
+.login-card{background:white;border-radius:20px;padding:28px 24px;width:100%;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,0.2);position:relative;z-index:1}
+.login-card h2{font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px}
+.login-card p{font-size:13px;color:var(--text-soft);margin-bottom:24px}
+.login-input-wrap{position:relative;margin-bottom:16px}
+.login-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:14px 48px 14px 16px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border-color .2s}
+.login-input:focus{border-color:var(--primary);background:var(--primary-light)}
+.login-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;user-select:none}
+.login-btn{width:100%;background:var(--primary);color:white;border:none;border-radius:12px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
+.login-btn:hover{background:#15396a}
+.login-btn:active{transform:scale(0.98)}
+.login-error{background:var(--red-light);border:1.5px solid #f5c0c0;border-radius:10px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:14px;display:none;text-align:center}
+.login-error.show{display:block}
+.login-attempts{font-size:11px;color:var(--text-soft);text-align:center;margin-top:12px}
+
+/* APP */
+#app{display:none}
+.screen{display:none;animation:fadeIn .25s ease}.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.header{background:var(--primary);padding:20px 20px 24px;border-radius:0 0 24px 24px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:rgba(255,255,255,0.06);border-radius:50%}
+.header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;position:relative;z-index:1}
+.back-btn{background:rgba(255,255,255,0.15);border:none;border-radius:10px;padding:8px 12px;color:white;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer}
+.header-badge{background:rgba(255,255,255,0.15);color:white;font-size:11px;padding:5px 10px;border-radius:20px;font-weight:500;position:relative;z-index:1}
+.header-title{font-family:'DM Serif Display',serif;font-size:22px;color:white;margin-bottom:4px;position:relative;z-index:1}
+.header-sub{font-size:13px;color:rgba(255,255,255,0.7);position:relative;z-index:1}
+.scroll-area{padding:12px 16px 100px}
+.section-title{font-size:11px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:1px;padding:16px 0 8px}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:4px 0 8px}
+.stat-card{background:var(--card);border-radius:14px;padding:14px 10px;text-align:center;box-shadow:var(--shadow)}
+.stat-num{font-size:22px;font-weight:600;color:var(--primary);line-height:1;margin-bottom:4px}
+.stat-label{font-size:10px;color:var(--text-soft);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.patient-card{background:var(--card);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:14px;border:2px solid transparent}
+.patient-card:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(26,74,122,0.12)}
+.patient-avatar{width:46px;height:46px;border-radius:14px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;font-weight:700;color:var(--primary)}
+.patient-status{font-size:10px;font-weight:700;padding:4px 8px;border-radius:20px;white-space:nowrap}
+.patient-status.active{background:var(--accent-light);color:var(--accent)}
+.patient-status.expired{background:#f3f4f6;color:#9ca3af}
+.patient-status.expiring{background:var(--orange-light);color:var(--orange)}
+.remark-card{background:var(--orange-light);border:1.5px solid #f5d5c0;border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.remark-card.read{background:var(--bg);border-color:var(--border)}
+.remark-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.remark-from{font-size:12px;font-weight:700;color:var(--orange)}
+.remark-card.read .remark-from{color:var(--text-soft)}
+.remark-time{font-size:10px;color:var(--text-soft)}
+.remark-text{font-size:13px;color:var(--text);line-height:1.5}
+.reply-box{background:var(--card);border-radius:0 0 12px 12px;padding:10px 14px;margin-top:-4px;box-shadow:var(--shadow)}
+.reply-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;resize:none;height:60px}
+.reply-btn{background:var(--primary);color:white;border:none;border-radius:10px;padding:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;width:100%;margin-top:8px}
+.form-card{background:var(--card);border-radius:var(--radius);padding:18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.form-card h3{font-size:12px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
+.form-group{margin-bottom:12px}.form-group:last-child{margin-bottom:0}
+.form-label{font-size:12px;font-weight:600;color:var(--text-soft);margin-bottom:6px;display:block}
+.form-input,.form-select{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;appearance:none}
+.form-input:focus,.form-select:focus{border-color:var(--primary);background:var(--primary-light)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-hint{font-size:11px;color:var(--text-soft);margin-top:4px}
+.chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.patho-chip{background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px}
+.patho-chip.selected{background:var(--primary-light);border-color:var(--primary)}
+.patho-chip .pe{font-size:18px}
+.patho-chip .pl{font-size:12px;font-weight:600;color:var(--text)}
+.patho-chip.selected .pl{color:var(--primary)}
+.duration-selector{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.dur-chip{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;color:var(--text-soft);cursor:pointer;transition:all .15s}
+.dur-chip.selected{background:var(--primary);border-color:var(--primary);color:white}
+.mode-selector{display:flex;gap:8px}
+.mode-option{flex:1;background:var(--card);border:2px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s}
+.mode-option.selected{border-color:var(--accent);background:var(--accent-light)}
+.mode-option .me{font-size:18px;display:block;margin-bottom:3px}
+.mode-option .ml{font-size:10px;font-weight:700;color:var(--text-soft)}
+.mode-option.selected .ml{color:var(--accent)}
+.tabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:var(--text-soft);cursor:pointer;white-space:nowrap;transition:all .15s}
+.tab.active{background:var(--primary);border-color:var(--primary);color:white}
+.lib-item{background:var(--card);border-radius:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;border:2px solid transparent;overflow:hidden}
+.lib-item.selected{border-color:var(--accent)}
+.lib-photo{width:60px;height:60px;flex-shrink:0;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:26px}
+.lib-photo img{width:60px;height:60px;object-fit:cover}
+.lib-info{flex:1;padding:10px 0}
+.lib-name{font-size:13px;font-weight:600;margin-bottom:2px}
+.lib-meta{font-size:11px;color:var(--text-soft)}
+.lib-cat{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--primary-light);color:var(--primary)}
+.lib-add-btn{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);background:white;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--primary);font-weight:600;flex-shrink:0;margin-right:12px;transition:all .15s}
+.lib-add-btn.added{background:var(--accent);color:white;border-color:var(--accent)}
+.sel-exercise{background:var(--card);border-radius:12px;margin-bottom:8px;border:2px solid var(--border);overflow:hidden}
+.sel-header{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.sel-photo{width:44px;height:44px;border-radius:10px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden}
+.sel-photo img{width:44px;height:44px;object-fit:cover}
+.sel-name{font-size:14px;font-weight:600;flex:1}
+.remove-btn{width:24px;height:24px;border-radius:50%;background:var(--red-light);border:none;color:var(--red);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ex-tags-row{display:flex;gap:5px;flex-wrap:wrap;padding:0 14px 12px}
+.ex-tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;background:var(--primary-light);color:var(--primary)}
+.link-card{background:linear-gradient(135deg,var(--primary) 0%,#2a5fa8 100%);border-radius:var(--radius);padding:20px;margin-bottom:12px;color:white}
+.link-card h3{font-size:15px;font-weight:700;margin-bottom:4px}
+.link-card p{font-size:12px;opacity:.8;margin-bottom:14px}
+.link-display{background:rgba(255,255,255,0.15);border-radius:10px;padding:11px 14px;font-size:12px;font-family:monospace;letter-spacing:.5px;margin-bottom:10px;word-break:break-all;cursor:pointer}
+.link-actions{display:flex;gap:8px}
+.link-btn{flex:1;background:white;color:var(--primary);border:none;border-radius:10px;padding:10px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+.link-btn.sms{background:var(--accent);color:white}
+.primary-btn{background:var(--accent);color:white;border:none;border-radius:14px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;width:100%;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s,transform .1s;margin-bottom:10px}
+.primary-btn:hover{background:#226b43}
+.primary-btn.blue{background:var(--primary)}.primary-btn.blue:hover{background:#15396a}
+.primary-btn.gray{background:var(--text-soft)}
+.photo-upload{width:100%;height:140px;background:var(--bg);border:2px dashed var(--border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.photo-upload .upload-icon{font-size:28px;margin-bottom:6px}
+.photo-upload .upload-text{font-size:12px;color:var(--text-soft);font-weight:500}
+.url-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;margin-top:8px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:20px 20px 40px;width:100%;max-width:430px;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.2,.64,1);max-height:90vh;overflow-y:auto}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-section{margin-bottom:14px}
+.modal-section label{font-size:11px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:8px}
+.modal-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--primary);outline:none;text-align:center}
+.modal-input:focus{border-color:var(--primary);background:var(--primary-light)}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.modal-grid.two{grid-template-columns:1fr 1fr}
+.modal-select{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;appearance:none}
+.modal-chips{display:flex;gap:6px;flex-wrap:wrap}
+.modal-chip{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;color:var(--text-soft);cursor:pointer;transition:all .15s}
+.modal-chip.on{background:var(--primary);border-color:var(--primary);color:white}
+.modal-save-btn{background:var(--accent);color:white;border:none;border-radius:12px;padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;width:100%;cursor:pointer;margin-top:8px}
+.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#5dd68c;margin-right:4px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.badge{background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:4px}
+.bottom-nav{background:var(--card);border-radius:20px 20px 0 0;padding:12px 20px 20px;display:flex;justify-content:space-around;box-shadow:0 -4px 20px rgba(0,0,0,0.06);position:sticky;bottom:0}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 12px;border-radius:12px;transition:background .15s}
+.nav-item:hover{background:var(--primary-light)}
+.nav-item .ni{font-size:20px}
+.nav-item .nl{font-size:10px;color:var(--text-soft);font-weight:500}
+.nav-item.active .nl{color:var(--primary);font-weight:700}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:white;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:9999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.push-notif{position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-100%);background:var(--primary);color:white;border-radius:0 0 16px 16px;padding:14px 20px;font-size:13px;font-family:'DM Sans',sans-serif;box-shadow:0 4px 20px rgba(0,0,0,0.2);z-index:9998;max-width:430px;width:100%;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.push-notif.show{transform:translateX(-50%) translateY(0)}
+.logout-btn{background:rgba(255,255,255,0.15);border:none;border-radius:10px;padding:6px 10px;color:white;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;position:relative;z-index:1}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ LOGIN ═══════════ -->
+<div id="login-screen">
+  <div class="login-logo">KinéSuivi</div>
+  <div class="login-sub">Interface Praticien</div>
+  <div class="login-card">
+    <h2>Connexion</h2>
+    <p>Accès réservé au praticien</p>
+    <div class="login-error" id="login-error">Mot de passe incorrect. Réessayez.</div>
+    <div class="login-input-wrap">
+      <input class="login-input" type="password" id="login-pwd" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')checkLogin()">
+      <span class="login-eye" onclick="window.togglePwd&&window.togglePwd()">👁</span>
+    </div>
+    <button class="login-btn" onclick="window.checkLogin&&window.checkLogin()">Se connecter</button>
+    <div class="login-attempts" id="login-attempts"></div>
+  </div>
+</div>
+
+<!-- ═══════════ APP ═══════════ -->
+<div id="app">
+<div class="phone">
+
+<!-- K1: DASHBOARD -->
+<div class="screen active" id="k-dashboard">
+  <div class="header">
+    <div class="header-top">
+      <span style="color:white;font-size:15px;font-weight:700;position:relative;z-index:1">KinéSuivi <span style="font-size:11px;opacity:.6;font-weight:400">Praticien</span></span>
+      <button class="logout-btn" onclick="logout()">🔒 Déconnexion</button>
+    </div>
+    <div class="header-title">Tableau de bord</div>
+    <div class="header-sub" id="k-date">—</div>
+  </div>
+  <div class="scroll-area">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="k-stat-patients">0</div><div class="stat-label">Patients</div></div>
+      <div class="stat-card"><div class="stat-num" id="k-stat-unreads" style="color:var(--orange)">0</div><div class="stat-label">Non lus</div></div>
+      <div class="stat-card"><div class="stat-num" id="k-stat-expired" style="color:var(--red)">0</div><div class="stat-label">Liens expirés</div></div>
+    </div>
+    <div class="section-title">Mes patients</div>
+    <div id="k-patients-list"></div>
+    <div class="patient-card" onclick="newPatient()" style="border:2px dashed var(--border);box-shadow:none;background:transparent">
+      <div class="patient-avatar" style="font-size:24px">+</div>
+      <div style="flex:1"><div style="font-size:15px;font-weight:600;color:var(--primary)">Nouveau patient</div><div style="font-size:12px;color:var(--text-soft)">Créer un programme + lien temporaire</div></div>
+    <div class="section-title" style="margin-top:16px;padding-top:8px;border-top:1px solid var(--border)"><span class="live-dot"></span>Messages récents</div>
+    <div id="k-feed-preview"></div></div>
+    </div>
+  </div>
+  
+
+<!-- K2: MESSAGES -->
+<div class="screen" id="k-messages">
+  <div class="header">
+    <div class="header-top"><button class="back-btn" onclick="showScreen('k-dashboard')">← Retour</button><span class="header-badge"><span class="live-dot"></span>Temps réel</span></div>
+    <div class="header-title">Messages patients</div>
+    <div class="header-sub" id="k-msg-sub">0 message(s)</div>
+  </div>
+  <div class="scroll-area"><div id="k-full-feed"><div style="text-align:center;padding:30px;color:var(--text-soft)"><div style="font-size:40px;margin-bottom:12px">💬</div><p>Aucun message pour l'instant</p></div></div></div>
+  
+</div>
+
+<!-- K3: PATIENT FICHE -->
+<div class="screen" id="k-patient">
+  <div class="header">
+    <div class="header-top"><button class="back-btn" onclick="showScreen('k-dashboard')">← Retour</button><span class="header-badge" id="kp-patho-badge">—</span></div>
+    <div class="header-title" id="kp-name">—</div>
+    <div class="header-sub" id="kp-sub">—</div>
+  </div>
+  <div class="scroll-area">
+    <div class="section-title">Lien du programme</div>
+    <div class="link-card">
+      <h3 id="kp-link-status">🔗 Lien actif</h3>
+      <p id="kp-link-expiry">—</p>
+      <div class="link-display" id="kp-link" onclick="copyPatientLink()">—</div>
+      <div class="link-actions">
+        <button class="link-btn" onclick="copyPatientLink()">📋 Copier</button>
+        <button class="link-btn sms" onclick="smsPatient()">📱 SMS</button>
+      </div>
+    </div>
+    <button class="primary-btn gray" style="margin-bottom:12px" onclick="renewLink()">🔄 Renouveler le lien</button>
+    <div class="section-title">Programme actuel</div>
+    <div style="background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:12px" id="kp-program-list"></div>
+    <button class="primary-btn blue" onclick="editPatientProgram()">✏️ Modifier le programme</button>
+    <button onclick="deletePatient()" style="width:100%;background:none;border:1.5px solid var(--red);border-radius:14px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--red);cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px">🗑 Supprimer ce patient</button>
+    <div class="section-title"><span class="live-dot"></span>Messages de <span id="kp-first-name">—</span></div>
+    <div id="kp-remarks"></div>
+  </div>
+  
+</div>
+
+<!-- K4: NOUVEAU PATIENT -->
+<div class="screen" id="k-new-patient">
+  <div class="header">
+    <div class="header-top"><button class="back-btn" onclick="showScreen('k-dashboard')">← Retour</button><span class="header-badge">Nouveau programme</span></div>
+    <div class="header-title">Créer un programme</div>
+    <div class="header-sub">Données minimales · Lien temporaire</div>
+  </div>
+  <div class="scroll-area">
+    <div class="form-card">
+      <h3>① Patient</h3>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Prénom</label><input class="form-input" type="text" id="np-prenom" placeholder="Sophie"></div>
+        <div class="form-group"><label class="form-label">Initiale</label><input class="form-input" type="text" id="np-initiale" placeholder="L." maxlength="2"></div>
+      </div>
+      <div class="form-hint">ℹ️ Aucune autre donnée personnelle conservée</div>
+    </div>
+    <div class="form-card">
+      <h3>② Pathologie</h3>
+      <div class="chip-grid" id="patho-grid"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <input class="form-input" type="text" id="custom-patho-input" placeholder="+ Ajouter une pathologie…" style="flex:1;font-size:13px;padding:9px 12px">
+        <button onclick="addCustomPatho()" style="background:var(--primary);color:white;border:none;border-radius:10px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">+ Ajouter</button>
+      </div>
+    </div>
+    <div class="form-card">
+      <h3>③ Durée du lien</h3>
+      <p style="font-size:12px;color:var(--text-soft);margin-bottom:10px">Le lien expire automatiquement. Générez-en un nouveau quand le programme évolue.</p>
+      <div class="duration-selector" id="duration-selector"></div>
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+        <input class="form-input" type="text" id="custom-duration-input" placeholder="Durée personnalisée… ex: 10 semaines" style="flex:1;font-size:13px;padding:9px 12px">
+        <button onclick="addCustomDuration()" style="background:var(--primary);color:white;border:none;border-radius:10px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">+ Ajouter</button>
+      </div>
+      <div class="form-group" style="margin-top:12px">
+        <label class="form-label">Temps disponible</label>
+        <div class="mode-selector">
+          <div class="mode-option selected" id="nm-rapide" onclick="selectMode('rapide')"><span class="me">⚡</span><div class="ml">15 min</div></div>
+          <div class="mode-option" id="nm-standard" onclick="selectMode('standard')"><span class="me">🎯</span><div class="ml">30 min</div></div>
+          <div class="mode-option" id="nm-complet" onclick="selectMode('complet')"><span class="me">💪</span><div class="ml">45 min</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-card">
+      <h3>④ Mode d'accès patient</h3>
+      <p style="font-size:12px;color:var(--text-soft);margin-bottom:10px">Choisissez les droits du patient sur l'application.</p>
+      <div class="mode-selector">
+        <div class="mode-option selected" id="am-complet" onclick="selectAccessMode('complet')">
+          <span class="me">💬</span>
+          <div class="ml">Complet<br><span style="font-weight:400;font-size:9px">Messagerie + propositions</span></div>
+        </div>
+        <div class="mode-option" id="am-lecture" onclick="selectAccessMode('lecture')">
+          <span class="me">👁</span>
+          <div class="ml">Lecture<br><span style="font-weight:400;font-size:9px">Programme seul</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>⑤ Exercices <span style="background:var(--accent);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:4px" id="np-count">0</span></h3>
+      <div id="np-exercises-list"></div>
+      <button class="primary-btn blue" style="margin-top:8px" onclick="showScreen('k-library')">+ Ajouter des exercices</button>
+    </div>
+    <button class="primary-btn" onclick="generateProgram()">🔗 Générer le lien patient</button>
+  </div>
+</div>
+
+<!-- K5: LIEN GÉNÉRÉ -->
+<div class="screen" id="k-generated">
+  <div class="header">
+    <div class="header-top"><button class="back-btn" onclick="showScreen('k-new-patient')">← Modifier</button><span class="header-badge">✓ Lien créé</span></div>
+    <div class="header-title" id="kg-title">Programme créé</div>
+    <div class="header-sub" id="kg-sub">—</div>
+  </div>
+  <div class="scroll-area">
+    <div style="text-align:center;padding:16px 0"><div style="font-size:52px;margin-bottom:10px">🎉</div><div style="font-size:16px;font-weight:700;margin-bottom:4px" id="kg-headline">Lien généré !</div><div style="font-size:12px;color:var(--text-soft)" id="kg-details"></div></div>
+    <div class="link-card">
+      <h3>🔗 Lien temporaire</h3>
+      <p id="kg-expiry-text">—</p>
+      <div class="link-display" id="kg-link" onclick="copyGeneratedLink()">—</div>
+      <div class="link-actions">
+        <button class="link-btn" onclick="copyGeneratedLink()">📋 Copier</button>
+        <button class="link-btn sms" onclick="smsGenerated()">📱 SMS</button>
+      </div>
+    </div>
+    <div style="background:var(--accent-light);border-radius:12px;padding:12px 14px;display:flex;gap:10px;margin-bottom:12px"><span>💡</span><p style="font-size:13px;color:var(--text);line-height:1.5">Envoyez ce lien par SMS au patient. Il accède directement à son programme sans télécharger d'application.</p></div>
+    <div style="background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:12px"><div style="font-size:12px;font-weight:700;margin-bottom:10px">📋 Programme</div><div id="kg-exercises-list" style="font-size:13px;color:var(--text-soft);line-height:2"></div></div>
+    <button class="primary-btn blue" onclick="showScreen('k-dashboard')">← Tableau de bord</button>
+  </div>
+</div>
+
+<!-- K6: BIBLIOTHÈQUE -->
+<div class="screen" id="k-library">
+  <div class="header">
+    <div class="header-top"><button class="back-btn" onclick="showScreen('k-new-patient')">← Retour</button><span class="header-badge">Bibliothèque</span></div>
+    <div class="header-title">Exercices</div>
+    <div class="header-sub" id="lib-sub">— exercices</div>
+  </div>
+  <div class="scroll-area">
+    <div class="tabs" id="lib-tabs">
+      <div class="tab active" onclick="filterLib('tous',this)">Tous</div>
+      <div class="tab" onclick="filterLib('genou',this)">Genou</div>
+      <div class="tab" onclick="filterLib('hanche',this)">Hanche</div>
+      <div class="tab" onclick="filterLib('dos',this)">Dos</div>
+      <div class="tab" onclick="filterLib('epaule',this)">Épaule</div>
+      <div class="tab" onclick="filterLib('global',this)">Global</div>
+      <div id="custom-lib-tabs"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input class="form-input" type="text" id="custom-cat-input" placeholder="+ Nouvelle catégorie…" style="flex:1;font-size:12px;padding:8px 12px">
+      <button onclick="addCustomCat()" style="background:var(--primary);color:white;border:none;border-radius:10px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">+ Ajouter</button>
+    </div>
+    <div id="lib-list"></div>
+    <button class="primary-btn" onclick="applyLibSelection()">✓ Ajouter la sélection <span style="background:rgba(255,255,255,0.3);padding:2px 8px;border-radius:10px;margin-left:4px" id="lib-count">0</span></button>
+    <div style="height:12px"></div>
+    <button class="primary-btn blue" onclick="showScreen('k-create-exercise')">+ Créer un exercice</button>
+  </div>
+</div>
+
+<!-- K7: CRÉER EXERCICE -->
+<div class="screen" id="k-create-exercise">
+  <div class="header">
+    <div class="header-top"><button class="back-btn" onclick="showScreen('k-library')">← Retour</button><span class="header-badge">Nouvel exercice</span></div>
+    <div class="header-title">Créer un exercice</div>
+    <div class="header-sub">Photo + instructions personnalisées</div>
+  </div>
+  <div class="scroll-area">
+    <div class="form-card">
+      <h3>Photo</h3>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button onclick="document.getElementById('photo-camera-input').click()" style="flex:1;background:var(--primary);color:white;border:none;border-radius:12px;padding:14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">📷 Prendre une photo</button>
+        <button onclick="document.getElementById('photo-file-input').click()" style="flex:1;background:var(--bg);color:var(--primary);border:1.5px solid var(--border);border-radius:12px;padding:14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">🖼 Galerie</button>
+      </div>
+      <input type="file" id="photo-camera-input" accept="image/*" capture="environment" onchange="handlePhotoUpload(this)" style="display:none">
+      <input type="file" id="photo-file-input" accept="image/*" onchange="handlePhotoUpload(this)" style="display:none">
+      <div id="photo-upload-area" style="width:100%;height:100px;background:var(--bg);border:2px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text-soft);margin-bottom:8px">Aucune photo sélectionnée</div>
+      <div style="display:flex;align-items:center;gap:10px;margin:8px 0"><div style="flex:1;height:1px;background:var(--border)"></div><span style="font-size:12px;color:var(--text-soft)">ou URL</span><div style="flex:1;height:1px;background:var(--border)"></div></div>
+      <input class="url-input" type="url" id="photo-url-input" placeholder="Coller une URL d'image" oninput="handlePhotoUrl(this.value)">
+    </div>
+    <div class="form-card">
+      <h3>Informations</h3>
+      <div class="form-group"><label class="form-label">Nom</label><input class="form-input" type="text" id="ce-name" placeholder="ex. Squat isométrique"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Zone</label><select class="form-select" id="ce-cat"><option value="genou">Genou</option><option value="hanche">Hanche</option><option value="dos">Dos</option><option value="epaule">Épaule</option><option value="global">Global</option></select></div>
+        <div class="form-group"><label class="form-label">Muscles</label><input class="form-input" type="text" id="ce-muscles" placeholder="ex. Quadriceps"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Séries</label><input class="form-input" type="number" id="ce-series" value="3" min="1" max="10"></div>
+        <div class="form-group"><label class="form-label">Reps/Durée</label><input class="form-input" type="text" id="ce-reps" value="10 reps"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Repos</label><input class="form-input" type="text" id="ce-repos" value="45s" style="width:50%"></div>
+    </div>
+    <div class="form-card">
+      <h3>Instructions patient</h3>
+      <div class="form-group"><label class="form-label">Comment faire</label><textarea class="form-input" id="ce-how" style="height:80px;resize:none" placeholder="Position, mouvement, respirations…"></textarea></div>
+      <div class="form-group"><label class="form-label">Pourquoi cet exercice ?</label><textarea class="form-input" id="ce-why" style="height:70px;resize:none" placeholder="Bénéfice pour motiver le patient…"></textarea></div>
+    </div>
+    <div class="form-card">
+      <h3>Vidéo & latéralité</h3>
+      <div class="form-group"><label class="form-label">🎥 Lien vidéo (YouTube ou Vimeo)</label><input class="form-input" type="url" id="ce-video" placeholder="https://youtube.com/watch?v=..."></div>
+      <div class="form-group"><label class="form-label">Unilatéral / Bilatéral</label><select class="form-select" id="ce-bilateral"><option value="">Non précisé</option><option value="Bilatéral — les deux côtés simultanément">Bilatéral</option><option value="Unilatéral — côté droit puis gauche">Unilatéral (D puis G)</option><option value="Unilatéral — côté gauche puis droit">Unilatéral (G puis D)</option><option value="Unilatéral — côté blessé seulement">Unilatéral — côté blessé</option></select></div>
+    </div>
+    <button class="primary-btn" onclick="saveExercise()">✓ Ajouter à ma bibliothèque</button>
+  </div>
+</div>
+
+
+<!-- GLOBAL BOTTOM NAV -->
+<div class="bottom-nav" id="global-nav">
+  <div class="nav-item active" id="nav-home" onclick="showScreen('k-dashboard')"><span class="ni">🏠</span><span class="nl">Accueil</span></div>
+  <div class="nav-item" id="nav-library" onclick="newPatient();showScreen('k-library')"><span class="ni">📚</span><span class="nl">Exercices</span></div>
+  <div class="nav-item" id="nav-patient" onclick="newPatient()"><span class="ni">➕</span><span class="nl">Patient</span></div>
+  <div class="nav-item" id="nav-messages" onclick="showScreen('k-messages')"><span class="ni">💬</span><span class="nl">Messages <span class="badge" id="k-msg-badge" style="display:none">!</span></span></div>
+</div>
+
+</div><!-- /phone -->
+</div><!-- /app -->
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal" onclick="closeEditModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><span id="edit-modal-emoji">🧱</span>&nbsp;<span id="edit-modal-name">Exercice</span></div>
+    <div class="modal-section"><label>Séries · Reps/Durée · Repos</label><div class="modal-grid"><input class="modal-input" type="number" id="em-series" min="1" max="20" placeholder="3"><input class="modal-input" type="text" id="em-reps" placeholder="10 reps"><input class="modal-input" type="text" id="em-repos" placeholder="45s"></div></div>
+    <div class="modal-section"><label>Isométrique — Temps de maintien</label><div class="modal-grid two"><input class="modal-input" type="text" id="em-maintien" placeholder="— (optionnel)"><span style="display:flex;align-items:center;font-size:11px;color:var(--text-soft)">ex. 30 sec, 45 sec…</span></div></div>
+    <div class="modal-section"><label>Charge</label><div class="modal-grid two"><input class="modal-input" type="text" id="em-poids" placeholder="—"><select class="modal-select" id="em-poids-type"><option value="">Sans charge</option><option value="kg">kg</option><option value="poids_corps">% poids corps</option><option value="kg_elastique">kg + élastique</option></select></div></div>
+    <div class="modal-section"><label>Matériel</label><div class="modal-chips"><div class="modal-chip" id="mc-elastique" onclick="toggleModalChip(this,'elastique')">🔴 Élastique</div><div class="modal-chip" id="mc-leger" onclick="toggleModalChip(this,'leger')">· Léger</div><div class="modal-chip" id="mc-moyen" onclick="toggleModalChip(this,'moyen')">· Moyen</div><div class="modal-chip" id="mc-fort" onclick="toggleModalChip(this,'fort')">· Fort</div><div class="modal-chip" id="mc-ballon" onclick="toggleModalChip(this,'ballon')">🟡 Ballon Klein</div><div class="modal-chip" id="mc-halteres" onclick="toggleModalChip(this,'halteres')">🏋️ Haltères</div></div></div>
+    <div class="modal-section"><label>Fréquence</label><div class="modal-chips"><div class="modal-chip on" id="mf-3" onclick="selectModalFreq('3x/sem',this)">3x/sem</div><div class="modal-chip" id="mf-4" onclick="selectModalFreq('4x/sem',this)">4x/sem</div><div class="modal-chip" id="mf-5" onclick="selectModalFreq('5x/sem',this)">5x/sem</div><div class="modal-chip" id="mf-q" onclick="selectModalFreq('Quotidien',this)">Quotidien</div></div></div>
+    <div class="modal-section"><label>📝 Note pour ce patient</label><textarea class="modal-input" id="em-note-patient" style="text-align:left;height:72px;resize:none;font-weight:400;font-size:13px;line-height:1.5" placeholder="ex. Stopper si douleur > 3/10…"></textarea></div>
+    <div class="modal-section"><label>📌 Mise à jour en cours de programme</label><textarea class="modal-input" id="em-update-note" style="text-align:left;height:60px;resize:none;font-weight:400;font-size:13px;line-height:1.5" placeholder="ex. Semaine 3 : passer à l'élastique moyen…"></textarea><div style="font-size:11px;color:var(--orange);margin-top:5px;font-weight:500">⚡ Visible immédiatement par le patient</div></div>
+    <div class="modal-section"><label>🎥 Lien vidéo (YouTube ou Vimeo)</label><input class="modal-input" type="url" id="em-video" placeholder="https://youtube.com/watch?v=..." style="text-align:left;font-weight:400;font-size:13px"></div>
+    <div class="modal-section"><label>Unilatéral / Bilatéral</label><select class="modal-select" id="em-bilateral"><option value="">Non précisé</option><option value="Bilatéral — les deux côtés simultanément">Bilatéral</option><option value="Unilatéral — côté droit puis gauche">Unilatéral (D puis G)</option><option value="Unilatéral — côté gauche puis droit">Unilatéral (G puis D)</option><option value="Unilatéral — côté blessé seulement">Unilatéral — côté blessé</option></select></div>
+    <button class="modal-save-btn" onclick="saveEditModal()">✓ Enregistrer</button>
+  </div>
+</div>
+
+<div class="push-notif" id="push-notif"></div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyABEVn49ortf9NTEzRAfvUQFc0sTsQZriY",
+  authDomain: "kinesuivi.firebaseapp.com",
+  projectId: "kinesuivi",
+  storageBucket: "kinesuivi.firebasestorage.app",
+  messagingSenderId: "887828679529",
+  appId: "1:887828679529:web:8afc54226a4a063b118bf8"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const BASE_URL = 'https://effortless-torte-893fa4.netlify.app/patient.html';
+
+const EXERCISE_DB = [
+  {id:1,emoji:'🧱',name:'Squat isométrique',cat:'genou',muscles:'Quadriceps · Contrôle moteur',photo:null,defaultSeries:3,defaultReps:'45 sec',defaultRepos:'30s',freq:'3x/sem',how:'Dos bien plaqué contre le mur, cuisses parallèles au sol. Maintenez la position sans bouger. Respirez normalement.',why:'Un quadriceps fort avant l\'opération récupère 2x plus vite après. C\'est votre meilleur investissement.'},
+  {id:2,emoji:'🦵',name:'Pont fessier unilatéral',cat:'hanche',muscles:'Moyen fessier · Ischio-jambiers',photo:null,defaultSeries:3,defaultReps:'12 reps',defaultRepos:'45s',freq:'3x/sem',how:'Allongé sur le dos, un genou fléchi. Décollez le bassin en serrant les fesses. Gardez le bassin horizontal.',why:'Le moyen fessier stabilise votre genou lors de la marche et réduit le risque de re-rupture.'},
+  {id:3,emoji:'🪲',name:'Dead bug',cat:'dos',muscles:'Gainage profond · Stabilité',photo:null,defaultSeries:3,defaultReps:'8 reps',defaultRepos:'45s',freq:'3x/sem',how:'Sur le dos, bras vers le plafond, genoux à 90°. Descendez un bras et la jambe opposée en gardant le dos plaqué.',why:'Stabilise le bassin et protège le genou lors de chaque mouvement.'},
+  {id:4,emoji:'🦩',name:'Équilibre unipodal',cat:'genou',muscles:'Proprioception · Contrôle moteur',photo:null,defaultSeries:3,defaultReps:'30 sec',defaultRepos:'30s',freq:'3x/sem',how:'Sur un pied, regard fixe. Yeux ouverts d\'abord, puis fermés. Restez proche d\'un mur.',why:'Rééduque votre cerveau à contrôler le genou — essentiel pour prévenir une nouvelle blessure.'},
+  {id:5,emoji:'🚶',name:'Fentes avant',cat:'genou',muscles:'Quadriceps · Fessiers',photo:null,defaultSeries:3,defaultReps:'10 reps',defaultRepos:'60s',freq:'4x/sem',how:'Grand pas en avant, genou dans l\'axe du pied. Descendez doucement, remontez sur le talon.',why:'Prépare votre genou aux contraintes de la vraie vie.'},
+  {id:6,emoji:'⚖️',name:'SL RDL unilatéral',cat:'hanche',muscles:'Ischio-jambiers · Équilibre',photo:null,defaultSeries:3,defaultReps:'8 reps',defaultRepos:'60s',freq:'4x/sem',how:'Sur un pied, penchez-vous en avant dos droit. Remontez lentement.',why:'Un des exercices les plus efficaces contre la re-rupture du LCA.'},
+  {id:7,emoji:'🦀',name:'Clamshell élastique',cat:'hanche',muscles:'Moyen fessier · Rotateurs ext.',photo:null,defaultSeries:3,defaultReps:'15 reps',defaultRepos:'45s',freq:'4x/sem',how:'Sur le côté, hanches à 45°. Élastique aux cuisses. Ouvrez le genou du dessus sans bouger le bassin.',why:'Contrôle le valgus du genou — mécanisme principal de re-rupture du LCA.'},
+  {id:8,emoji:'🏗️',name:'Gainage latéral',cat:'global',muscles:'Chaîne latérale · Obliques',photo:null,defaultSeries:3,defaultReps:'30 sec',defaultRepos:'30s',freq:'4x/sem',how:'Appui sur avant-bras et côté du pied. Corps en ligne droite.',why:'Stabilise le bassin lors des activités unipodales.'},
+  {id:9,emoji:'🔄',name:'Rotation épaule résistée',cat:'epaule',muscles:'Coiffe des rotateurs',photo:null,defaultSeries:3,defaultReps:'15 reps',defaultRepos:'30s',freq:'3x/sem',how:'Coude collé au corps à 90°. Rotation externe lente avec élastique.',why:'Stabilise l\'articulation et prévient les récidives.'},
+  {id:10,emoji:'🧘',name:'Gainage ventral',cat:'global',muscles:'Transverse · Core profond',photo:null,defaultSeries:3,defaultReps:'40 sec',defaultRepos:'20s',freq:'4x/sem',how:'Avant-bras et pointes de pieds. Corps rigide, dos plat.',why:'Votre corset naturel. Protège le dos et améliore tous vos mouvements.'},
+  {id:11,emoji:'🐛',name:'Superman',cat:'dos',muscles:'Érecteurs du rachis · Fessiers',photo:null,defaultSeries:3,defaultReps:'10 reps',defaultRepos:'30s',freq:'3x/sem',how:'Sur le ventre. Levez bras et jambes opposés, 2s de maintien.',why:'Renforce la chaîne postérieure pour soutenir le bas du dos.'},
+  {id:12,emoji:'🦶',name:'Montée sur pointes',cat:'genou',muscles:'Soléaire · Gastrocnémien',photo:null,defaultSeries:3,defaultReps:'20 reps',defaultRepos:'30s',freq:'3x/sem',how:'Debout. Montez lentement sur les pointes (2s), redescendez en 3s.',why:'Renforce le mollet et améliore la proprioception de la cheville.'},
+];
+
+const PATHO_OPTIONS = [
+  {value:'lca',emoji:'🦵',label:'LCA / Genou',ids:[1,2,3,4]},
+  {value:'epaule',emoji:'💪',label:'Épaule',ids:[9,3,10,8]},
+  {value:'lombalgie',emoji:'🔙',label:'Lombalgies',ids:[3,11,10,8]},
+  {value:'hanche',emoji:'🚶',label:'Hanche / PTH',ids:[2,6,7,5]},
+  {value:'cheville',emoji:'🦶',label:'Cheville',ids:[4,12,8,10]},
+  {value:'general',emoji:'🏃',label:'Général',ids:[10,8,3,2]},
+];
+
+const BASE_DURATIONS = [{label:'2 semaines',weeks:2},{label:'4 semaines',weeks:4},{label:'6 semaines',weeks:6},{label:'3 mois',weeks:12}];
+const _savedDurs = JSON.parse(localStorage.getItem('custom_durations')||'[]');
+let DURATIONS = [...BASE_DURATIONS, ..._savedDurs.filter(d=>!BASE_DURATIONS.find(b=>b.label===d.label))];
+
+let patients=[], allMessages=[];
+let customPathos = JSON.parse(localStorage.getItem('custom_pathos')||'[]');
+let customCats = JSON.parse(localStorage.getItem('custom_cats')||'[]');
+// Load saved custom pathos into PATHO_OPTIONS
+customPathos.forEach(p => { if(!PATHO_OPTIONS.find(x=>x.value===p.value)) PATHO_OPTIONS.push(p); });
+let program={prenom:'',initiale:'',patho:'lca',pathoLabel:'LCA / Genou',mode:'rapide',durationWeeks:4,exercises:[],expiryDate:null,freq:'3x/semaine'};
+let currentPatientId=null, currentPatientLink=null;
+let libFilter='tous', libSelected=new Set();
+let selectedPathoValue='lca', selectedDuration=4, selectedMode='rapide';
+let editModalIndex=-1, modalMateriel=new Set(), modalFreq='3x/sem';
+let newExPhoto=null;
+let unsubPatients=null, unsubMessages=null;
+
+// ── CUSTOM PATHOLOGIES ──
+window.addCustomPatho = function() {
+  const input = document.getElementById('custom-patho-input');
+  const val = input.value.trim();
+  if (!val) return;
+  const slug = val.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,20);
+  if (PATHO_OPTIONS.find(p=>p.label===val)) { showToast('Pathologie déjà existante'); return; }
+  const newPatho = {value: slug, emoji: '📋', label: val, ids: []};
+  PATHO_OPTIONS.push(newPatho);
+  customPathos.push(newPatho);
+  localStorage.setItem('custom_pathos', JSON.stringify(customPathos));
+  input.value = '';
+  renderPathoGrid();
+  selectPatho(slug);
+  showToast(val + ' ajouté ✓');
+};
+
+
+
+// ── CUSTOM DURATIONS ──
+window.addCustomDuration = function() {
+  const input = document.getElementById('custom-duration-input');
+  const val = input.value.trim();
+  if (!val) return;
+  let weeks = 0;
+  const numMatch = val.match(/(\d+)/);
+  if (numMatch) {
+    weeks = parseInt(numMatch[1]);
+    if (val.toLowerCase().includes('mois')) weeks *= 4;
+  }
+  if (!weeks) { showToast('Precisez une duree en semaines ou mois'); return; }
+  const newDur = {label: val, weeks};
+  DURATIONS.push(newDur);
+  selectedDuration = weeks;
+  // Save to localStorage
+  const saved = JSON.parse(localStorage.getItem('custom_durations')||'[]');
+  saved.push(newDur);
+  localStorage.setItem('custom_durations', JSON.stringify(saved));
+  input.value = '';
+  renderDurationSelector();
+  showToast(val + ' ajoute !');
+};
+
+// ── CUSTOM LIBRARY CATEGORIES ──
+window.addCustomCat = function() {
+  const input = document.getElementById('custom-cat-input');
+  const val = input.value.trim();
+  if (!val) return;
+  const slug = val.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,15);
+  if(customCats.find(c=>c.value===slug)){showToast('Categorie existante');return;}
+  customCats.push({label: val, value: slug});
+  localStorage.setItem('custom_cats', JSON.stringify(customCats));
+  input.value = '';
+  renderCustomCatTabs();
+  showToast(val + ' ajoute !');
+};
+
+function renderCustomCatTabs() {
+  const el = document.getElementById('custom-lib-tabs');
+  if (!el) return;
+  el.innerHTML = customCats.map(c =>
+    '<div class="tab" onclick="filterLib(\''+c.value+'\',this)">'+c.label+'</div>'
+  ).join('');
+}
+
+
+
+
+window.initApp = function() {
+  document.getElementById('k-date').textContent = new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  renderPathoGrid();
+  renderDurationSelector();
+  renderLibrary(); renderCustomCatTabs();
+
+  // Listen patients
+  if(unsubPatients) unsubPatients();
+  unsubPatients = onSnapshot(collection(db,'patients'), snap => {
+    patients = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderDashboard();
+  });
+
+  // Listen messages
+  if(unsubMessages) unsubMessages();
+  const msgQ = query(collection(db,'messages'), orderBy('timestamp','desc'));
+  unsubMessages = onSnapshot(msgQ, snap => {
+    const prev = allMessages.length;
+    allMessages = snap.docs.map(d=>({id:d.id,...d.data()}));
+    const unreads = allMessages.filter(m=>!m.read).length;
+    document.getElementById('k-stat-unreads').textContent = unreads;
+    const badge = document.getElementById('k-msg-badge');
+    if(unreads>0){badge.style.display='inline';badge.textContent=unreads;}else badge.style.display='none';
+    renderFeedPreview();
+    renderFullFeed();
+    if(currentPatientId) renderPatientRemarks();
+    // Push notif only for genuinely new messages
+    if(allMessages.length > prev && prev > 0) {
+      const newest = allMessages[0];
+      if(!newest.read) showPushNotif(newest);
+    }
+  });
+};
+
+// Check session on load
+const session = localStorage.getItem('kinesuivi_auth');
+if(session && (Date.now()-parseInt(session)) < 8*3600000) {
+  window.initApp();
+}
+// Listen for login success event from non-module script
+window.addEventListener('kinelogin', () => {
+  window.initApp();
+});
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  // Update nav active state
+  const navMap = {
+    'k-dashboard':'nav-home','k-library':'nav-library','k-create-exercise':'nav-library',
+    'k-new-patient':'nav-patient','k-generated':'nav-patient',
+    'k-messages':'nav-messages','k-patient':'nav-patient'
+  };
+  document.querySelectorAll('#global-nav .nav-item').forEach(n=>n.classList.remove('active'));
+  const activeNav = navMap[id];
+  if(activeNav) {
+    const el = document.getElementById(activeNav);
+    if(el) el.classList.add('active');
+  }
+  // Hide global nav on sub-screens that have back buttons
+  const hideNav = ['k-create-exercise','k-generated'];
+  const nav = document.getElementById('global-nav');
+  if(nav) nav.style.display = hideNav.includes(id) ? 'none' : 'flex';
+}
+window.showScreen=showScreen;
+function daysLeft(d){if(!d)return 999;return Math.ceil((new Date(d)-new Date())/86400000);}
+
+function renderDashboard(){
+  const list=document.getElementById('k-patients-list');
+  if(!list)return;
+  document.getElementById('k-stat-patients').textContent=patients.length;
+  document.getElementById('k-stat-expired').textContent=patients.filter(p=>daysLeft(p.expiryDate)<0).length;
+  list.innerHTML=patients.map(p=>{const days=daysLeft(p.expiryDate);const status=days<0?'expired':days<7?'expiring':'active';const label=days<0?'Lien expiré':days<7?days+'j restants':'Actif';return '<div class="patient-card" onclick="openPatient(\''+p.id+'\')"><div class="patient-avatar">'+p.prenom[0]+(p.initiale?p.initiale[0]:'')+'</div><div style="flex:1"><div style="font-size:15px;font-weight:600">'+p.prenom+' '+p.initiale+'</div><div style="font-size:12px;color:var(--text-soft)">'+p.pathoLabel+' · '+(p.exercises?p.exercises.length:0)+' exercices</div></div><div class="patient-status '+status+'">'+label+'</div></div>';}).join('');
+}
+
+function renderFeedPreview(){const feed=document.getElementById('k-feed-preview');if(!feed)return;const recent=allMessages.slice(0,3);if(!recent.length){feed.innerHTML='<div style="text-align:center;padding:16px;color:var(--text-soft);font-size:13px">Aucun message pour l\'instant</div>';return;}feed.innerHTML=recent.map(m=>remarkCardHTML(m,true)).join('');}
+function renderFullFeed(){const feed=document.getElementById('k-full-feed');const sub=document.getElementById('k-msg-sub');if(sub)sub.textContent=allMessages.length+' message(s)';if(!allMessages.length){if(feed)feed.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-soft)"><div style="font-size:40px;margin-bottom:12px">💬</div><p>Aucun message pour linstant</p></div>';return;}if(feed)feed.innerHTML=allMessages.map(m=>remarkCardHTML(m,true)+replyBoxHTML(m)).join('');}
+function remarkCardHTML(m,showPatient){
+  const ts=m.timestamp?new Date(m.timestamp.toDate()).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'—';
+  const isProposal=m.isProposal;
+  const bgColor=isProposal?'var(--primary-light)':'var(--orange-light)';
+  const borderColor=isProposal?'var(--border)':'#f5d5c0';
+  const fromColor=isProposal?'var(--primary)':'var(--orange)';
+  const statusBadge=isProposal&&m.proposalStatus==='pending'?'<span style="background:var(--primary);color:white;font-size:9px;padding:2px 6px;border-radius:8px;font-weight:700;margin-left:6px">À VALIDER</span>':
+    isProposal&&m.proposalStatus==='accepted'?'<span style="background:var(--accent);color:white;font-size:9px;padding:2px 6px;border-radius:8px;font-weight:700;margin-left:6px">VALIDÉ</span>':
+    isProposal&&m.proposalStatus==='refused'?'<span style="background:var(--red);color:white;font-size:9px;padding:2px 6px;border-radius:8px;font-weight:700;margin-left:6px">REFUSÉ</span>':'';
+  const deleteBtn='<button data-id="'+m.id+'" onclick="deleteMessage(this.dataset.id)" style="background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;padding:2px 6px;float:right" title="Supprimer">🗑</button>';
+  return '<div class="remark-card '+(m.read?'read':'')+'" style="background:'+bgColor+';border-color:'+borderColor+'"><div class="remark-header"><span class="remark-from" style="color:'+fromColor+'">'+(showPatient?m.patientName+' · ':'')+m.type+statusBadge+'</span><span class="remark-time">'+ts+(!m.read?' <span style="background:var(--red);color:white;font-size:9px;padding:1px 5px;border-radius:8px;font-weight:700">NOUVEAU</span>':'')+'</span>'+deleteBtn+'</div><div class="remark-text">« '+m.text+' »</div>'+(m.reply?'<div style="margin-top:8px;font-size:12px;color:var(--primary)">↩️ <em>'+m.reply+'</em></div>':'')+'</div>';
+}
+function replyBoxHTML(m){
+  if(m.reply)return '';
+  let html='<div class="reply-box">';
+  if(m.isProposal && m.proposalStatus==='pending'){
+    html+='<div style="display:flex;gap:8px;margin-bottom:8px">';
+    html+='<button data-id="'+m.id+'" data-status="accepted" onclick="handleValidate(this)" style="flex:1;background:var(--accent);color:white;border:none;border-radius:8px;padding:8px;font-family:DM Sans,sans-serif;font-size:12px;font-weight:600;cursor:pointer">✓ Valider</button>';
+    html+='<button data-id="'+m.id+'" data-status="refused" onclick="handleValidate(this)" style="flex:1;background:var(--red);color:white;border:none;border-radius:8px;padding:8px;font-family:DM Sans,sans-serif;font-size:12px;font-weight:600;cursor:pointer">✕ Refuser</button>';
+    html+='</div>';
+  }
+  html+='<textarea class="reply-input" id="reply-'+m.id+'" placeholder="Répondre à '+m.patientName+'..."></textarea>';
+  html+='<button data-id="'+m.id+'" onclick="handleReply(this)" class="reply-btn">↩️ Répondre</button>';
+  html+='</div>';
+  return html;
+}
+
+window.handleValidate=function(btn){validateProposal(btn.dataset.id, btn.dataset.status);};
+window.handleReply=function(btn){
+  const id=btn.dataset.id;
+  const input=document.getElementById('reply-'+id);
+  if(!input||!input.value.trim()){showToast('Écrivez une réponse');return;}
+  updateDoc(doc(db,'messages',id),{reply:input.value.trim(),read:true})
+    .then(()=>showToast('Réponse envoyée ✓'))
+    .catch(()=>showToast('Erreur'));
+};
+// sendReply replaced by handleReply (see replyBoxHTML);
+
+window.deletePatient=async function(){
+  if(!currentPatientId){return;}
+  const p=patients.find(x=>x.id===currentPatientId);
+  if(!p)return;
+  const name=p.prenom+' '+p.initiale;
+  if(!window.confirm('Supprimer le programme de '+name+' ? Cette action est irreversible.')){return;}
+  try{
+    await deleteDoc(doc(db,'patients',currentPatientId));
+    // Also delete their messages
+    const patMsgs=allMessages.filter(m=>m.patientId===currentPatientId);
+    for(const m of patMsgs){
+      await deleteDoc(doc(db,'messages',m.id));
+    }
+    currentPatientId=null;
+    showToast('Programme supprimé ✓');
+    showScreen('k-dashboard');
+  }catch(e){console.error(e);showToast('Erreur suppression');}
+};
+
+window.deleteMessage=async function(id){
+  if(!window.confirm('Supprimer ce message ?')){return;}
+  try{
+    await deleteDoc(doc(db,'messages',id));
+    showToast('Message supprimé ✓');
+  }catch(e){showToast('Erreur suppression');}
+};
+
+window.validateProposal=async function(id,status){
+  const label=status==='accepted'?'Proposition validée ✓':'Proposition refusée';
+  const replyText=status==='accepted'?
+    'Votre proposition a été validée. Le programme sera mis à jour.' :
+    'Votre proposition a bien été reçue mais ne sera pas retenue cette fois.';
+  try{
+    await updateDoc(doc(db,'messages',id),{proposalStatus:status,reply:replyText,read:true});
+    showToast(label);
+  }catch(e){showToast('Erreur');}
+};;
+window.openPatient=function(id){currentPatientId=id;const p=patients.find(x=>x.id===id);if(!p)return;const days=daysLeft(p.expiryDate);document.getElementById('kp-name').textContent=p.prenom+' '+p.initiale;document.getElementById('kp-first-name').textContent=p.prenom;document.getElementById('kp-patho-badge').textContent=p.pathoLabel;document.getElementById('kp-sub').textContent=(p.exercises?p.exercises.length:0)+' exercices · Mode '+(p.mode||'rapide');currentPatientLink=BASE_URL+'?id='+id;document.getElementById('kp-link').textContent=currentPatientLink;document.getElementById('kp-link-expiry').textContent=days<0?'⚠️ Lien expiré — générez-en un nouveau':'Expire dans '+days+' jour(s)';document.getElementById('kp-link-status').textContent=days<0?'⚠️ Lien expiré':'🔗 Lien actif';const pl=document.getElementById('kp-program-list');pl.innerHTML=(p.exercises||[]).map((ex,i)=>'<div style="display:flex;align-items:center;gap:10px;padding:9px 0;'+(i<(p.exercises.length-1)?'border-bottom:1px solid var(--border)':'')+'"><span style="font-size:20px">'+(ex.photo?'📷':ex.emoji)+'</span><div style="flex:1"><div style="font-size:13px;font-weight:600">'+ex.name+'</div><div style="font-size:11px;color:var(--text-soft)">'+ex.series+' × '+ex.reps+' · Repos '+ex.repos+'</div></div></div>').join('');renderPatientRemarks();showScreen('k-patient');};
+function renderPatientRemarks(){const pr=document.getElementById('kp-remarks');if(!pr)return;const patRemarks=allMessages.filter(m=>m.patientId===currentPatientId);pr.innerHTML=patRemarks.length?patRemarks.map(m=>remarkCardHTML(m,false)+replyBoxHTML(m)).join(''):'<div style="text-align:center;padding:16px;color:var(--text-soft);font-size:13px">Aucun message</div>';}
+window.copyPatientLink=function(){if(navigator.clipboard)navigator.clipboard.writeText(currentPatientLink);showToast('Lien copié ! 📋');};
+window.copyGeneratedLink=function(){const l=document.getElementById('kg-link').textContent;if(navigator.clipboard)navigator.clipboard.writeText(l);showToast('Lien copié ! 📋');};
+window.smsPatient=function(){window.open('sms:?body=Bonjour, voici votre programme de rééducation : '+currentPatientLink);};
+window.smsGenerated=function(){const l=document.getElementById('kg-link').textContent;window.open('sms:?body=Bonjour, voici votre programme de rééducation : '+l);};
+window.renewLink=async function(){const p=patients.find(x=>x.id===currentPatientId);if(!p)return;const expiry=new Date();expiry.setDate(expiry.getDate()+28);await updateDoc(doc(db,'patients',currentPatientId),{expiryDate:expiry.toISOString()});showToast('Lien renouvelé ✓');openPatient(currentPatientId);};
+window.editPatientProgram=function(){window._editingPatient=true;const p=patients.find(x=>x.id===currentPatientId);if(!p)return;program={...p};libSelected=new Set((p.exercises||[]).map(e=>e.id));selectedPathoValue=p.patho||'lca';selectedDuration=p.durationWeeks||4;selectedMode=p.mode||'rapide';selectedAccessMode=p.accessMode||'complet';document.getElementById('np-prenom').value=p.prenom||'';document.getElementById('np-initiale').value=p.initiale||'';renderPathoGrid();renderDurationSelector();renderNpExercises();
+  // Update access mode UI
+  ['complet','lecture'].forEach(m=>{const el=document.getElementById('am-'+m);if(el)el.classList.toggle('selected',m===selectedAccessMode);});
+  showScreen('k-new-patient');};
+
+function renderPathoGrid(){const grid=document.getElementById('patho-grid');if(!grid)return;grid.innerHTML=PATHO_OPTIONS.map(p=>'<div class="patho-chip '+(p.value===selectedPathoValue?'selected':'')+'" onclick="selectPatho(\''+p.value+'\')"><span class="pe">'+p.emoji+'</span><span class="pl">'+p.label+'</span></div>').join('');}
+window.selectPatho=function(val){selectedPathoValue=val;const opt=PATHO_OPTIONS.find(p=>p.value===val);if(!opt)return;program.patho=val;program.pathoLabel=opt.label;libSelected=new Set(opt.ids);program.exercises=opt.ids.map(id=>{const ex=EXERCISE_DB.find(e=>e.id===id);return{...ex,series:ex.defaultSeries,reps:ex.defaultReps,repos:ex.defaultRepos};});renderPathoGrid();renderNpExercises();showToast('Exercices suggérés ✓');};
+function renderDurationSelector(){const el=document.getElementById('duration-selector');if(!el)return;el.innerHTML=DURATIONS.map(d=>'<div class="dur-chip '+(d.weeks===selectedDuration?'selected':'')+'" onclick="selectDuration('+d.weeks+')">'+d.label+'</div>').join('');}
+window.selectDuration=function(w){selectedDuration=w;program.durationWeeks=w;renderDurationSelector();};
+
+let selectedAccessMode = 'complet';
+
+
+window.newPatient = function() {
+  // Reset all state for a fresh patient
+  window._editingPatient = false;
+  currentPatientId = null;
+  program = {prenom:'',initiale:'',patho:'lca',pathoLabel:'LCA / Genou',mode:'rapide',durationWeeks:4,exercises:[],expiryDate:null,freq:'3x/semaine'};
+  libSelected = new Set();
+  selectedPathoValue = 'lca';
+  selectedDuration = 4;
+  selectedMode = 'rapide';
+  selectedAccessMode = 'complet';
+  // Reset form fields
+  const prenomEl = document.getElementById('np-prenom');
+  const initialeEl = document.getElementById('np-initiale');
+  if(prenomEl) prenomEl.value = '';
+  if(initialeEl) initialeEl.value = '';
+  // Reset access mode UI
+  ['complet','lecture'].forEach(m=>{
+    const el=document.getElementById('am-'+m);
+    if(el) el.classList.toggle('selected', m==='complet');
+  });
+  // Reset mode UI
+  ['rapide','standard','complet'].forEach(x=>{
+    const el=document.getElementById('nm-'+x);
+    if(el) el.classList.toggle('selected', x==='rapide');
+  });
+  renderPathoGrid();
+  renderDurationSelector();
+  renderNpExercises();
+  showScreen('k-new-patient');
+};
+window.selectAccessMode=function(mode){
+  selectedAccessMode=mode;
+  ['complet','lecture'].forEach(m=>{
+    const el=document.getElementById('am-'+m);
+    if(el) el.classList.toggle('selected', m===mode);
+  });
+};
+window.selectMode=function(m){selectedMode=m;program.mode=m;['rapide','standard','complet'].forEach(x=>document.getElementById('nm-'+x).classList.remove('selected'));document.getElementById('nm-'+m).classList.add('selected');};
+
+function renderNpExercises(){const el=document.getElementById('np-exercises-list');const cnt=document.getElementById('np-count');if(cnt)cnt.textContent=program.exercises?program.exercises.length:0;if(!program.exercises||!program.exercises.length){el.innerHTML='<div style="text-align:center;padding:16px;color:var(--text-soft);font-size:13px">Sélectionnez une pathologie ou ajoutez depuis la bibliothèque</div>';return;}el.innerHTML=program.exercises.map((ex,i)=>{const tags=[];tags.push(ex.series+' × '+ex.reps);tags.push('⏸ '+ex.repos);if(ex.maintien)tags.push('🕐 '+ex.maintien);if(ex.poids&&ex.poidsType){const u=ex.poidsType==='kg'?'kg':ex.poidsType==='poids_corps'?'% PC':'kg+él.';tags.push('⚖️ '+ex.poids+' '+u);}const mat=ex.materiel||[];if(mat.includes('elastique')){const niv=mat.includes('fort')?'Fort':mat.includes('moyen')?'Moyen':mat.includes('leger')?'Léger':'';tags.push('🔴 Élastique'+(niv?' '+niv:''));}if(mat.includes('ballon'))tags.push('🟡 Ballon Klein');if(mat.includes('halteres'))tags.push('🏋️ Haltères');if(ex.freq)tags.push(ex.freq);return '<div class="sel-exercise"><div class="sel-header"><div class="sel-photo">'+(ex.photo?'<img src="'+ex.photo+'">':(ex.emoji||'📋'))+'</div><span class="sel-name">'+ex.name+'</span><button style="background:var(--primary-light);border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;color:var(--primary);cursor:pointer;margin-right:6px;flex-shrink:0" onclick="openEditModal('+i+')">✏️</button><button class="remove-btn" onclick="removeExercise('+i+')">✕</button></div><div class="ex-tags-row">'+tags.map(t=>'<span class="ex-tag">'+t+'</span>').join('')+'</div></div>';}).join('');}
+window.removeExercise=function(i){libSelected.delete(program.exercises[i].id);program.exercises.splice(i,1);renderNpExercises();};
+
+function renderLibrary(){const list=document.getElementById('lib-list');if(!list)return;const data=libFilter==='tous'?EXERCISE_DB:EXERCISE_DB.filter(e=>e.cat===libFilter||e.customCat===libFilter);document.getElementById('lib-sub').textContent=EXERCISE_DB.length+' exercices';list.innerHTML=data.map(ex=>'<div class="lib-item '+(libSelected.has(ex.id)?'selected':'')+'"><div class="lib-photo">'+(ex.photo?'<img src="'+ex.photo+'">':ex.emoji)+'</div><div class="lib-info"><div class="lib-name">'+ex.name+'</div><div class="lib-meta">'+ex.muscles+'</div></div><div class="lib-cat">'+ex.cat+'</div><div class="lib-add-btn '+(libSelected.has(ex.id)?'added':'')+'" onclick="toggleLib('+ex.id+')">'+(libSelected.has(ex.id)?'✓':'+')+'</div></div>').join('');const cnt=document.getElementById('lib-count');if(cnt)cnt.textContent=libSelected.size;}
+window.filterLib=function(cat,el){libFilter=cat;document.querySelectorAll('#lib-tabs .tab, #custom-lib-tabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderLibrary();};
+window.toggleLib=function(id){libSelected.has(id)?libSelected.delete(id):libSelected.add(id);renderLibrary();};
+window.applyLibSelection=function(){libSelected.forEach(id=>{if(!program.exercises.find(e=>e.id===id)){const ex=EXERCISE_DB.find(e=>e.id===id);if(ex)program.exercises.push({...ex,series:ex.defaultSeries,reps:ex.defaultReps,repos:ex.defaultRepos});}});program.exercises=program.exercises.filter(e=>libSelected.has(e.id));renderNpExercises();showScreen('k-new-patient');showToast(program.exercises.length+' exercice(s) ✓');};
+
+window.handlePhotoUpload=function(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    newExPhoto=e.target.result;
+    const area=document.getElementById('photo-upload-area');
+    if(area){
+      area.style.height='140px';area.style.padding='0';area.style.overflow='hidden';
+      area.innerHTML='<img src="'+newExPhoto+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px">';
+    }
+  };
+  reader.readAsDataURL(file);
+};
+window.handlePhotoUrl=function(url){if(!url)return;newExPhoto=url;const img=new Image();img.onload=()=>{const area=document.getElementById('photo-upload-area');area.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px"><input type="file" accept="image/*" onchange="handlePhotoUpload(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer">';};img.onerror=()=>showToast('URL invalide');img.src=url;};
+window.saveExercise=function(){const name=document.getElementById('ce-name').value.trim();if(!name){showToast('Donnez un nom');return;}const newEx={id:Date.now(),emoji:'📋',name,cat:document.getElementById('ce-cat').value,muscles:document.getElementById('ce-muscles').value||'Non précisé',photo:newExPhoto,videoUrl:document.getElementById('ce-video').value.trim()||'',bilateral:document.getElementById('ce-bilateral').value||'',defaultSeries:parseInt(document.getElementById('ce-series').value)||3,defaultReps:document.getElementById('ce-reps').value||'10 reps',defaultRepos:document.getElementById('ce-repos').value||'45s',freq:'3x/sem',how:document.getElementById('ce-how').value||'Suivez les instructions de votre kiné.',why:document.getElementById('ce-why').value||'Cet exercice fait partie de votre programme.'};EXERCISE_DB.push(newEx);libSelected.add(newEx.id);if(!program.exercises)program.exercises=[];program.exercises.push({...newEx,series:newEx.defaultSeries,reps:newEx.defaultReps,repos:newEx.defaultRepos});newExPhoto=null;['ce-name','ce-muscles','ce-how','ce-why'].forEach(id=>document.getElementById(id).value='');document.getElementById('photo-url-input').value='';document.getElementById('ce-video').value='';document.getElementById('ce-bilateral').value='';const area=document.getElementById('photo-upload-area');if(area){area.style.height='100px';area.innerHTML='Aucune photo sélectionnée';}newExPhoto=null;showToast('Exercice ajouté ✓');renderNpExercises();renderLibrary();showScreen('k-library');};
+
+window.generateProgram=async function(){if(!program.exercises||!program.exercises.length){showToast('Ajoutez au moins un exercice');return;}const prenom=document.getElementById('np-prenom').value.trim();if(!prenom){showToast('Entrez le prénom du patient');return;}const initiale=document.getElementById('np-initiale').value.trim()||'';program.prenom=prenom;program.initiale=initiale;const expiry=new Date();expiry.setDate(expiry.getDate()+selectedDuration*7);program.expiryDate=expiry.toISOString();program.mode=selectedMode;program.freq=selectedDuration<=4?'3x/semaine':'4x/semaine';program.kineName='Kiné';program.accessMode=selectedAccessMode;program.createdAt=new Date().toISOString();try{let patientDocId=currentPatientId;
+    // Only update existing if we're explicitly editing (currentPatientId set via editPatientProgram)
+    if(patientDocId && patients.find(p=>p.id===patientDocId) && window._editingPatient){
+      await setDoc(doc(db,'patients',patientDocId),program);
+      window._editingPatient=false;
+    }else{
+      // Always create new patient
+      const ref=await addDoc(collection(db,'patients'),program);
+      patientDocId=ref.id;
+      currentPatientId=patientDocId;
+    }const link=BASE_URL+'?id='+patientDocId;document.getElementById('kg-title').textContent=prenom+' '+initiale;document.getElementById('kg-headline').textContent='Programme créé pour '+prenom+' !';document.getElementById('kg-sub').textContent=program.exercises.length+' exercices · Mode '+selectedMode;document.getElementById('kg-details').textContent=program.exercises.length+' exercices · Expire dans '+selectedDuration+' semaines';document.getElementById('kg-expiry-text').textContent='Expire le '+expiry.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});document.getElementById('kg-link').textContent=link;document.getElementById('kg-exercises-list').innerHTML=program.exercises.map(ex=>(ex.photo?'📷':ex.emoji)+' <strong>'+ex.name+'</strong> — '+ex.series+' × '+ex.reps+' · Repos '+ex.repos+'<br>').join('');showScreen('k-generated');}catch(e){console.error(e);showToast('Erreur Firebase — vérifiez les règles Firestore');}};
+
+window.openEditModal=function(i){editModalIndex=i;const ex=program.exercises[i];document.getElementById('edit-modal-emoji').textContent=ex.photo?'📷':(ex.emoji||'📋');document.getElementById('edit-modal-name').textContent=ex.name;document.getElementById('em-series').value=ex.series||3;document.getElementById('em-reps').value=ex.reps||'';document.getElementById('em-repos').value=ex.repos||'';document.getElementById('em-maintien').value=ex.maintien||'';document.getElementById('em-poids').value=ex.poids||'';document.getElementById('em-poids-type').value=ex.poidsType||'';modalMateriel=new Set(ex.materiel||[]);['elastique','leger','moyen','fort','ballon','halteres'].forEach(k=>{const el=document.getElementById('mc-'+k);if(el)el.classList.toggle('on',modalMateriel.has(k));});modalFreq=ex.freq||'3x/sem';['mf-3','mf-4','mf-5','mf-q'].forEach(id=>document.getElementById(id).classList.remove('on'));const fm={'3x/sem':'mf-3','4x/sem':'mf-4','5x/sem':'mf-5','Quotidien':'mf-q'};if(fm[modalFreq])document.getElementById(fm[modalFreq]).classList.add('on');document.getElementById('em-note-patient').value=ex.notePatient||'';document.getElementById('em-update-note').value=ex.updateNote||'';document.getElementById('em-video').value=ex.videoUrl||'';document.getElementById('em-bilateral').value=ex.bilateral||'';document.getElementById('edit-modal').classList.add('open');};
+window.closeEditModal=function(e){if(e.target===document.getElementById('edit-modal'))document.getElementById('edit-modal').classList.remove('open');};
+window.toggleModalChip=function(el,key){if(['leger','moyen','fort'].includes(key)){['leger','moyen','fort'].forEach(k=>{modalMateriel.delete(k);document.getElementById('mc-'+k).classList.remove('on');});}if(modalMateriel.has(key)){modalMateriel.delete(key);el.classList.remove('on');}else{modalMateriel.add(key);el.classList.add('on');}};
+window.selectModalFreq=function(freq,el){modalFreq=freq;['mf-3','mf-4','mf-5','mf-q'].forEach(id=>document.getElementById(id).classList.remove('on'));el.classList.add('on');};
+window.saveEditModal=async function(){if(editModalIndex<0)return;const ex=program.exercises[editModalIndex];ex.series=document.getElementById('em-series').value||ex.series;ex.reps=document.getElementById('em-reps').value||ex.reps;ex.repos=document.getElementById('em-repos').value||ex.repos;ex.maintien=document.getElementById('em-maintien').value||'';ex.poids=document.getElementById('em-poids').value||'';ex.poidsType=document.getElementById('em-poids-type').value||'';ex.materiel=[...modalMateriel];ex.freq=modalFreq;ex.notePatient=document.getElementById('em-note-patient').value.trim();ex.updateNote=document.getElementById('em-update-note').value.trim();ex.videoUrl=document.getElementById('em-video').value.trim()||'';ex.bilateral=document.getElementById('em-bilateral').value||'';document.getElementById('edit-modal').classList.remove('open');renderNpExercises();if(currentPatientId&&patients.find(p=>p.id===currentPatientId)){try{await updateDoc(doc(db,'patients',currentPatientId),{exercises:program.exercises});showToast('Mis à jour en temps réel ✓');}catch(e){showToast('Modifications enregistrées localement');}}else{showToast('Modifications enregistrées ✓');}};
+
+function showPushNotif(msg){const el=document.getElementById('push-notif');el.innerHTML='<div style="display:flex;align-items:center;gap:12px"><span style="font-size:22px">🔔</span><div><div style="font-size:11px;opacity:.7;margin-bottom:2px;font-weight:600">KINESUIVI · NOUVEAU MESSAGE</div><div style="font-weight:700">'+msg.patientName+' — '+msg.type+'</div><div style="font-size:12px;opacity:.8;margin-top:2px">« '+msg.text.substring(0,60)+(msg.text.length>60?'…':'')+' »</div></div></div>';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),5000);}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+window.showToast=showToast;
+window.logout=function(){localStorage.removeItem('kinesuivi_auth');if(unsubPatients)unsubPatients();if(unsubMessages)unsubMessages();patients=[];allMessages=[];document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('login-pwd').value='';};
+
+
+// ══════════════════════════════════════
+//  🔐 LOGIN — intégré dans le module
+// ══════════════════════════════════════
+const MOT_DE_PASSE = "Kinedu2418/!";
+const SESSION_KEY = "kinesuivi_auth";
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MINUTES = 15;
+
+function checkLogin() {
+  const lockoutUntil = localStorage.getItem('lockout_until');
+  if (lockoutUntil && new Date() < new Date(lockoutUntil)) {
+    const mins = Math.ceil((new Date(lockoutUntil)-new Date())/60000);
+    document.getElementById('login-error').textContent = 'Trop de tentatives. Réessayez dans '+mins+' minute(s).';
+    document.getElementById('login-error').classList.add('show');
+    return;
+  }
+  const pwd = document.getElementById('login-pwd').value;
+  if (pwd === MOT_DE_PASSE) {
+    localStorage.setItem(SESSION_KEY, Date.now());
+    localStorage.removeItem('login_attempts');
+    localStorage.removeItem('lockout_until');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initApp();
+  } else {
+    let attempts = parseInt(localStorage.getItem('login_attempts')||'0') + 1;
+    localStorage.setItem('login_attempts', attempts);
+    if (attempts >= MAX_ATTEMPTS) {
+      const lockout = new Date(Date.now() + LOCKOUT_MINUTES*60000);
+      localStorage.setItem('lockout_until', lockout.toISOString());
+      localStorage.removeItem('login_attempts');
+      document.getElementById('login-error').textContent = 'Compte bloqué '+LOCKOUT_MINUTES+' min après '+MAX_ATTEMPTS+' tentatives.';
+    } else {
+      document.getElementById('login-error').textContent = 'Mot de passe incorrect. '+(MAX_ATTEMPTS-attempts)+' tentative(s) restante(s).';
+      document.getElementById('login-attempts').textContent = attempts+'/'+MAX_ATTEMPTS+' tentatives';
+    }
+    document.getElementById('login-error').classList.add('show');
+    document.getElementById('login-pwd').value = '';
+  }
+}
+window.checkLogin = checkLogin;
+
+window.togglePwd = function() {
+  const input = document.getElementById('login-pwd');
+  input.type = input.type === 'password' ? 'text' : 'password';
+};
+
+window.logout = function() {
+  localStorage.removeItem(SESSION_KEY);
+  if(unsubPatients) unsubPatients();
+  if(unsubMessages) unsubMessages();
+  patients=[]; allMessages=[];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-pwd').value = '';
+};
+
+// Enter key on password field
+document.getElementById('login-pwd').addEventListener('keydown', e => {
+  if(e.key === 'Enter') checkLogin();
+});
+
+// Auto-login if session valid (8h)
+const _session = localStorage.getItem(SESSION_KEY);
+if (_session && (Date.now() - parseInt(_session)) < 8*3600000) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  initApp();
+}
+</script>
+</body>
+</html>

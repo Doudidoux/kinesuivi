@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>KinéSuivi — Mon Programme v3</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0f4f8;--card:#fff;--primary:#1a4a7a;--primary-light:#e8f0fa;--accent:#2a7d4f;--accent-light:#e6f4ed;--orange:#d4622a;--orange-light:#fdf0ea;--red:#c0392b;--text:#1a2332;--text-soft:#5a6a7a;--border:#e2e8f0;--shadow:0 2px 16px rgba(26,74,122,0.08);--radius:16px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center}
+.phone{width:100%;max-width:430px;background:var(--bg);min-height:100vh;position:relative;overflow-x:hidden}
+.screen{display:none;animation:fadeIn .25s ease}.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.header{background:var(--primary);padding:20px 20px 24px;border-radius:0 0 24px 24px;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:rgba(255,255,255,0.06);border-radius:50%}
+.header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;position:relative;z-index:1}
+.back-btn{background:rgba(255,255,255,0.15);border:none;border-radius:10px;padding:8px 12px;color:white;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer}
+.header-badge{background:rgba(255,255,255,0.15);color:white;font-size:11px;padding:5px 10px;border-radius:20px;font-weight:500;position:relative;z-index:1}
+.header-title{font-family:'DM Serif Display',serif;font-size:22px;color:white;margin-bottom:4px;position:relative;z-index:1}
+.header-sub{font-size:13px;color:rgba(255,255,255,0.7);position:relative;z-index:1}
+.progress-bar-wrap{position:relative;z-index:1;margin-top:12px}
+.progress-label{display:flex;justify-content:space-between;margin-bottom:6px}
+.progress-label span{font-size:12px;color:rgba(255,255,255,0.8)}
+.progress-label strong{font-size:12px;color:white}
+.progress-track{background:rgba(255,255,255,0.2);border-radius:4px;height:6px}
+.progress-fill{background:#5dd68c;height:6px;border-radius:4px;transition:width .6s ease}
+.scroll-area{padding:12px 16px 100px}
+.section-title{font-size:11px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:1px;padding:16px 0 8px}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:4px 0 8px}
+.stat-card{background:var(--card);border-radius:14px;padding:14px 10px;text-align:center;box-shadow:var(--shadow)}
+.stat-num{font-size:22px;font-weight:600;color:var(--primary);line-height:1;margin-bottom:4px}
+.stat-label{font-size:10px;color:var(--text-soft);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.motivation-card{background:linear-gradient(135deg,var(--primary) 0%,#2a5fa8 100%);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;color:white;display:flex;align-items:center;gap:12px}
+.motivation-emoji{font-size:28px}
+.motivation-text strong{display:block;font-size:13px;margin-bottom:2px}
+.motivation-text span{font-size:11px;opacity:.8}
+.week-tracker{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:10px}
+.week-days{display:flex;justify-content:space-between;margin-top:8px}
+.day-bubble{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;background:var(--bg);color:var(--text-soft)}
+.day-bubble.done{background:var(--accent);color:white}
+.day-bubble.today{border:2px solid var(--primary);color:var(--primary)}
+
+/* EXERCISE CARDS */
+.exercise-card{background:var(--card);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s,box-shadow .15s;border:2px solid transparent;overflow:hidden}
+.exercise-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(26,74,122,0.12)}
+.exercise-card.done{border-color:#c0e8d0;background:#f8fffe}
+.ex-photo-banner{width:100%;height:110px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden}
+.ex-photo-banner img{width:100%;height:100%;object-fit:cover}
+.ex-done-overlay{position:absolute;inset:0;background:rgba(42,125,79,0.75);display:flex;align-items:center;justify-content:center;font-size:40px;color:white}
+.ex-body{padding:12px 14px}
+.ex-name{font-size:15px;font-weight:600;margin-bottom:3px}
+.ex-meta{font-size:12px;color:var(--text-soft);margin-bottom:8px}
+.ex-footer{display:flex;justify-content:space-between;align-items:center}
+.muscle-tags{display:flex;gap:5px;flex-wrap:wrap}
+.muscle-tag{background:var(--primary-light);color:var(--primary);font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px}
+.ex-check{width:30px;height:30px;border-radius:50%;border:2.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s;cursor:pointer;flex-shrink:0}
+.ex-check.checked{background:var(--accent);border-color:var(--accent);color:white}
+.ex-start-btn{background:var(--primary);color:white;border:none;border-radius:10px;padding:6px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px}
+.ex-start-btn.done-style{background:var(--accent)}
+
+/* DETAIL */
+.detail-hero{background:var(--primary);border-radius:0 0 32px 32px;position:relative;overflow:hidden}
+.detail-hero-photo{width:100%;height:200px;object-fit:cover;display:block}
+.detail-hero-emoji{height:160px;display:flex;align-items:center;justify-content:center;font-size:72px;background:var(--primary)}
+.detail-hero-overlay{position:absolute;bottom:0;left:0;right:0;padding:16px 20px 20px;background:linear-gradient(transparent,rgba(26,74,122,0.9))}
+.detail-title{font-family:'DM Serif Display',serif;font-size:22px;color:white;margin-bottom:4px}
+.detail-sub{font-size:13px;color:rgba(255,255,255,0.7)}
+.detail-section{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:10px;box-shadow:var(--shadow)}
+.detail-section h3{font-size:11px;font-weight:700;color:var(--text-soft);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.dosage-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dosage-item{background:var(--primary-light);border-radius:10px;padding:10px;text-align:center}
+.dosage-num{font-size:16px;font-weight:700;color:var(--primary);display:block}
+.dosage-label{font-size:10px;color:var(--text-soft);margin-top:2px}
+.tip-box{background:var(--accent-light);border-radius:10px;padding:12px;display:flex;gap:10px}
+.tip-box p{font-size:13px;color:var(--text);line-height:1.5}
+.why-text{font-size:13px;color:var(--text);line-height:1.7}
+.update-banner{background:var(--orange-light);border:1.5px solid #f5d5c0;border-radius:10px;padding:12px;margin-top:10px;display:flex;gap:8px}
+.note-banner{background:var(--primary-light);border-radius:10px;padding:10px 12px;margin-top:10px;display:flex;gap:8px}
+
+/* VIDEO */
+.video-container{width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;margin-bottom:10px}
+.video-container iframe{width:100%;height:100%;border:none}
+
+/* START TIMER BTN */
+.start-timer-btn{background:var(--primary);color:white;border:none;border-radius:14px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;width:100%;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px}
+.done-btn{background:var(--accent);color:white;border:none;border-radius:14px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;width:100%;cursor:pointer;margin-bottom:12px;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.done-btn.already{background:#9ca3af;cursor:default}
+
+/* ═══ TIMER SCREEN ═══ */
+#p-timer{background:var(--primary)}
+.timer-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 24px;background:linear-gradient(160deg,var(--primary) 0%,#0d2d52 100%)}
+.timer-phase{font-size:13px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.timer-ex-name{font-family:'DM Serif Display',serif;font-size:20px;color:white;margin-bottom:4px;text-align:center}
+.timer-series-info{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:40px}
+.timer-circle{position:relative;width:220px;height:220px;margin:0 auto 40px}
+.timer-svg{width:220px;height:220px;transform:rotate(-90deg)}
+.timer-bg{fill:none;stroke:rgba(255,255,255,0.1);stroke-width:12}
+.timer-progress{fill:none;stroke:#5dd68c;stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset .95s linear;stroke-dasharray:628}
+.timer-progress.rest{stroke:var(--orange)}
+.timer-time{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.timer-seconds{font-size:56px;font-weight:700;color:white;line-height:1;font-variant-numeric:tabular-nums}
+.timer-label{font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px}
+.timer-controls{display:flex;gap:12px;margin-bottom:32px}
+.timer-btn{background:rgba(255,255,255,0.15);border:none;border-radius:14px;padding:14px 24px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}
+.timer-btn:hover{background:rgba(255,255,255,0.25)}
+.timer-btn.primary{background:var(--accent)}
+.timer-btn.primary:hover{background:#226b43}
+.timer-btn.danger{background:rgba(192,57,43,0.4)}
+.series-dots{display:flex;gap:8px;justify-content:center}
+.series-dot{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .3s}
+.series-dot.done{background:#5dd68c}
+.series-dot.current{background:white;transform:scale(1.2)}
+
+/* REMARK */
+.reply-area{background:var(--card);border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.reply-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;resize:none;height:75px}
+.reply-input:focus{border-color:var(--primary)}
+.reply-btn{background:var(--primary);color:white;border:none;border-radius:10px;padding:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;width:100%;margin-top:8px}
+.remark-card{background:var(--primary-light);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.remark-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.remark-from{font-size:11px;font-weight:700;color:var(--primary)}
+.remark-time{font-size:10px;color:var(--text-soft)}
+.remark-text{font-size:13px;color:var(--text);line-height:1.5}
+.tab{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:var(--text-soft);cursor:pointer;white-space:nowrap;transition:all .15s;display:inline-block}
+.tab.active{background:var(--primary);border-color:var(--primary);color:white}
+.session-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.session-item:last-child{border-bottom:none}
+.session-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.session-dot.missed{background:#e5e7eb}
+.session-date{font-size:13px;color:var(--text);flex:1}
+.session-badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px}
+.session-badge.ok{background:var(--accent-light);color:var(--accent)}
+.session-badge.miss{background:#f3f4f6;color:#9ca3af}
+.bottom-nav{background:var(--card);border-radius:20px 20px 0 0;padding:12px 20px 20px;display:flex;justify-content:space-around;box-shadow:0 -4px 20px rgba(0,0,0,0.06);position:sticky;bottom:0}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 12px;border-radius:12px;transition:background .15s}
+.nav-item:hover{background:var(--primary-light)}
+.nav-item .ni{font-size:20px}
+.nav-item .nl{font-size:10px;color:var(--text-soft);font-weight:500}
+.nav-item.active .nl{color:var(--primary);font-weight:700}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:white;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:9999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px;color:var(--text-soft)}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.bilateral-badge{background:var(--orange-light);color:var(--orange);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;display:inline-block;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="phone" id="app">
+
+<!-- LOADING -->
+<div id="loading" class="loading">
+  <div class="spinner"></div>
+  <div style="font-size:14px;font-weight:600;color:var(--primary)">Chargement de votre programme…</div>
+</div>
+
+<!-- P1: HOME -->
+<div class="screen" id="p-home">
+  <div class="header">
+    <div class="header-top">
+      <span style="color:white;font-size:15px;font-weight:600;position:relative;z-index:1">KinéSuivi</span>
+      <span class="header-badge" id="p-patho-badge">—</span>
+    </div>
+    <div class="header-title" id="p-greeting">Bonjour 👋</div>
+    <div class="header-sub" id="p-countdown">—</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-label"><span>Exercices du jour</span><strong id="p-pct">0%</strong></div>
+      <div class="progress-track"><div class="progress-fill" id="p-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <div class="motivation-card">
+      <div class="motivation-emoji">💪</div>
+      <div class="motivation-text"><strong id="p-motiv-title">Programme en cours</strong><span id="p-motiv-sub">—</span></div>
+    </div>
+    <div class="week-tracker">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:600">Cette semaine</span><span style="font-size:12px;color:var(--text-soft)" id="p-week-count">—</span></div>
+      <div class="week-days" id="p-week-days"></div>
+    </div>
+    <div class="section-title">Mes exercices</div>
+    <div id="p-exercise-cards"></div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item active"><span class="ni">🏠</span><span class="nl">Accueil</span></div>
+    <div class="nav-item" onclick="showScreen('p-suivi')"><span class="ni">📈</span><span class="nl">Suivi</span></div>
+    <div class="nav-item" onclick="showScreen('p-programme')"><span class="ni">📋</span><span class="nl">Programme</span></div>
+    <div class="nav-item" onclick="showScreen('p-kine')"><span class="ni">💬</span><span class="nl">Kiné</span></div>
+  </div>
+</div>
+
+<!-- P2: DETAIL -->
+<div class="screen" id="p-exercise">
+  <div class="detail-hero">
+    <div style="padding:14px 20px;position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center">
+      <button class="back-btn" onclick="showScreen('p-home')">← Retour</button>
+      <span class="header-badge" id="pd-badge">—</span>
+    </div>
+    <div id="pd-photo-container" class="detail-hero-emoji">🧱</div>
+    <div class="detail-hero-overlay">
+      <div class="detail-title" id="pd-title">Exercice</div>
+      <div class="detail-sub" id="pd-sub">Muscles</div>
+    </div>
+  </div>
+  <div class="scroll-area" style="padding:14px 16px 80px">
+
+    <!-- VIDEO -->
+    <div id="pd-video-section" style="display:none;margin-bottom:10px">
+      <div class="video-container" id="pd-video-container"></div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Dosage</h3>
+      <div class="dosage-grid" id="pd-dosage-grid"></div>
+      <div id="pd-bilateral" style="margin-top:8px"></div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Comment faire</h3>
+      <div class="tip-box"><span>💡</span><p id="pd-how">—</p></div>
+      <div id="pd-note-patient" class="note-banner" style="display:none">
+        <span style="font-size:15px;flex-shrink:0">📝</span>
+        <p id="pd-note-text" style="font-size:13px;color:var(--primary);line-height:1.5;font-weight:500"></p>
+      </div>
+    </div>
+
+    <div id="pd-update-note" class="update-banner" style="display:none;margin-bottom:10px">
+      <span style="font-size:16px;flex-shrink:0">⚡</span>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--orange);margin-bottom:4px">MIS À JOUR PAR VOTRE KINÉ</div>
+        <p id="pd-update-text" style="font-size:13px;color:var(--text);line-height:1.5"></p>
+      </div>
+    </div>
+
+    <div class="detail-section"><h3>Pourquoi cet exercice ?</h3><p class="why-text" id="pd-why">—</p></div>
+
+    <!-- TIMER BTN (only shown if maintien set) -->
+    <button class="start-timer-btn" id="pd-timer-btn" onclick="startTimer()" style="display:none">⏱ Démarrer le chronomètre</button>
+
+    <button class="done-btn" id="pd-done-btn" onclick="markDone()">✓ Exercice terminé !</button>
+  </div>
+</div>
+
+<!-- P3: TIMER -->
+<div class="screen" id="p-timer">
+  <div class="timer-wrap">
+    <div class="timer-phase" id="t-phase">MAINTIEN</div>
+    <div class="timer-ex-name" id="t-ex-name">Squat isométrique</div>
+    <div class="timer-series-info" id="t-series-info">Série 1 sur 3</div>
+
+    <div class="timer-circle">
+      <svg class="timer-svg" viewBox="0 0 220 220">
+        <circle class="timer-bg" cx="110" cy="110" r="100"/>
+        <circle class="timer-progress" id="t-progress" cx="110" cy="110" r="100" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-time">
+        <div class="timer-seconds" id="t-seconds">45</div>
+        <div class="timer-label" id="t-label">secondes</div>
+      </div>
+    </div>
+
+    <div class="series-dots" id="t-dots"></div>
+
+    <div class="timer-controls" style="margin-top:24px">
+      <button class="timer-btn" onclick="togglePause()" id="t-pause-btn">⏸ Pause</button>
+      <button class="timer-btn primary" onclick="skipPhase()">⏭ Suivant</button>
+      <button class="timer-btn danger" onclick="stopTimer()">✕ Arrêter</button>
+    </div>
+  </div>
+</div>
+
+<!-- P4: PROGRAMME -->
+<div class="screen" id="p-programme">
+  <div class="header">
+    <div class="header-top"><button class="back-btn" onclick="showScreen('p-home')">← Retour</button><span class="header-badge">Programme</span></div>
+    <div class="header-title">Tous les exercices</div>
+    <div class="header-sub" id="p-prog-sub">—</div>
+  </div>
+  <div class="scroll-area"><div id="p-programme-list"></div></div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="showScreen('p-home')"><span class="ni">🏠</span><span class="nl">Accueil</span></div>
+    <div class="nav-item" onclick="showScreen('p-suivi')"><span class="ni">📈</span><span class="nl">Suivi</span></div>
+    <div class="nav-item active"><span class="ni">📋</span><span class="nl">Programme</span></div>
+    <div class="nav-item" onclick="showScreen('p-kine')"><span class="ni">💬</span><span class="nl">Kiné</span></div>
+  </div>
+</div>
+
+<!-- P5: SUIVI -->
+<div class="screen" id="p-suivi">
+  <div class="header">
+    <div class="header-top"><button class="back-btn" onclick="showScreen('p-home')">← Retour</button><span class="header-badge">Suivi</span></div>
+    <div class="header-title">Mon suivi</div>
+    <div class="header-sub" id="p-suivi-sub">—</div>
+  </div>
+  <div class="scroll-area">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent)" id="p-stat-seances">0</div><div class="stat-label">Séances</div></div>
+      <div class="stat-card"><div class="stat-num" id="p-stat-assiduite">—</div><div class="stat-label">Assiduité</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--orange)" id="p-days-left">—</div><div class="stat-label">Jours restants</div></div>
+    </div>
+    <div class="section-title">Historique</div>
+    <div class="detail-section" id="p-historique"></div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="showScreen('p-home')"><span class="ni">🏠</span><span class="nl">Accueil</span></div>
+    <div class="nav-item active"><span class="ni">📈</span><span class="nl">Suivi</span></div>
+    <div class="nav-item" onclick="showScreen('p-programme')"><span class="ni">📋</span><span class="nl">Programme</span></div>
+    <div class="nav-item" onclick="showScreen('p-kine')"><span class="ni">💬</span><span class="nl">Kiné</span></div>
+  </div>
+</div>
+
+<!-- P6: KINÉ -->
+<div class="screen" id="p-kine">
+  <div class="header">
+    <div class="header-top"><button class="back-btn" onclick="showScreen('p-home')">← Retour</button><span class="header-badge">💬 En ligne</span></div>
+    <div class="header-title">Mon kiné</div>
+    <div class="header-sub" id="p-kine-sub">Répond sous 24h</div>
+  </div>
+  <div class="scroll-area">
+    <!-- Mode complet only -->
+    <div id="p-kine-complet">
+      <div class="reply-area">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">Envoyer un message</div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap" id="p-type-tabs">
+          <span class="tab active" onclick="selectType(this,'🔴 Douleur')">🔴 Douleur</span>
+          <span class="tab" onclick="selectType(this,'⚠️ Difficulté')">⚠️ Difficulté</span>
+          <span class="tab" onclick="selectType(this,'❓ Question')">❓ Question</span>
+          <span class="tab" onclick="selectType(this,'✅ Progrès')">✅ Progrès</span>
+        </div>
+        <textarea class="reply-input" id="p-msg-input" placeholder="Décrivez votre ressenti…"></textarea>
+        <button class="reply-btn" onclick="sendMessage()">📨 Envoyer</button>
+      </div>
+      <div class="section-title">Mes messages</div>
+      <div id="p-thread"><div style="text-align:center;padding:20px;color:var(--text-soft);font-size:13px">Vos messages apparaîtront ici</div></div>
+    </div>
+    <!-- Mode lecture -->
+    <div id="p-kine-lecture" style="display:none">
+      <div style="text-align:center;padding:40px 24px;color:var(--text-soft)">
+        <div style="font-size:48px;margin-bottom:16px">📋</div>
+        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px">Programme en lecture seule</div>
+        <div style="font-size:13px;line-height:1.6">Votre kiné gère votre programme. Vous pouvez consulter vos exercices et suivre votre progression.</div>
+      </div>
+    </div>
+
+    <!-- Patient acteur — toujours visible -->
+    <div class="section-title" id="p-acteur-title">💡 Proposer une modification</div>
+    <div class="reply-area" id="p-acteur-section">
+      <div style="font-size:13px;font-weight:600;margin-bottom:6px">Proposer à votre kiné</div>
+      <div style="font-size:12px;color:var(--text-soft);margin-bottom:10px">Votre kiné validera ou ajustera votre proposition.</div>
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+        <span class="tab active" id="prop-tab-modif" onclick="selectPropType(this,'modification')">✏️ Modifier un exo</span>
+        <span class="tab" id="prop-tab-new" onclick="selectPropType(this,'nouvel_exo')">➕ Nouvel exercice</span>
+      </div>
+      <div id="prop-modif-section">
+        <select class="reply-input" id="prop-exo-select" style="height:auto;padding:10px 14px;margin-bottom:8px;resize:none"></select>
+        <textarea class="reply-input" id="prop-modif-text" style="height:70px" placeholder="ex. Je pense pouvoir passer à 4 séries, la 3ème devient facile. Ou : j'ai mal au genou droit pendant cet exercice…"></textarea>
+      </div>
+      <div id="prop-new-section" style="display:none">
+        <textarea class="reply-input" id="prop-new-text" style="height:80px" placeholder="ex. J'ai vu un exercice de gainage sur le côté, ça pourrait m'aider ? Ou décrivez l'exercice que vous voulez ajouter…"></textarea>
+      </div>
+      <button class="reply-btn" style="background:var(--orange)" onclick="sendProposal()">📤 Envoyer la proposition</button>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="showScreen('p-home')"><span class="ni">🏠</span><span class="nl">Accueil</span></div>
+    <div class="nav-item" onclick="showScreen('p-suivi')"><span class="ni">📈</span><span class="nl">Suivi</span></div>
+    <div class="nav-item" onclick="showScreen('p-programme')"><span class="ni">📋</span><span class="nl">Programme</span></div>
+    <div class="nav-item active"><span class="ni">💬</span><span class="nl">Kiné</span></div>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getFirestore, doc, getDoc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyABEVn49ortf9NTEzRAfvUQFc0sTsQZriY",
+  authDomain: "kinesuivi.firebaseapp.com",
+  projectId: "kinesuivi",
+  storageBucket: "kinesuivi.firebasestorage.app",
+  messagingSenderId: "887828679529",
+  appId: "1:887828679529:web:8afc54226a4a063b118bf8"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const urlParams = new URLSearchParams(window.location.search);
+const patientId = urlParams.get('id') || 'demo';
+
+let program = null;
+let patientChecked = [];
+let currentExIndex = 0;
+let currentMsgType = '🔴 Douleur';
+let sessionLog = [];
+
+// ── TIMER STATE ──
+let timerInterval = null;
+let timerSeconds = 0;
+let timerTotal = 0;
+let timerPhase = 'work'; // 'work' | 'rest'
+let timerCurrentSeries = 1;
+let timerTotalSeries = 3;
+let timerWorkSecs = 45;
+let timerRestSecs = 30;
+let timerPaused = false;
+let timerExIndex = 0;
+const beepCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function beep(freq=880, duration=0.3, vol=0.5) {
+  try {
+    const osc = beepCtx.createOscillator();
+    const gain = beepCtx.createGain();
+    osc.connect(gain); gain.connect(beepCtx.destination);
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, beepCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, beepCtx.currentTime + duration);
+    osc.start(); osc.stop(beepCtx.currentTime + duration);
+  } catch(e){}
+}
+
+function beepEnd() { beep(660,0.15); setTimeout(()=>beep(880,0.3),200); }
+function beepFinish() { [0,200,400,600].forEach(d=>setTimeout(()=>beep(1046,0.2),d)); }
+
+// ── LOAD ──
+async function loadProgram() {
+  // Timeout fallback
+  const timeout = setTimeout(() => {
+    const loading = document.getElementById('loading');
+    if (loading && loading.style.display !== 'none') {
+      loading.innerHTML = '<div style="text-align:center;padding:40px;color:#5a6a7a"><div style="font-size:48px;margin-bottom:16px">⚠️</div><div style="font-size:15px;font-weight:600;margin-bottom:8px">Chargement trop long</div><div style="font-size:13px;margin-bottom:16px">Vérifiez votre connexion.</div><button onclick="location.reload()" style="background:#1a4a7a;color:white;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer">🔄 Réessayer</button></div>';
+    }
+  }, 10000);
+  try {
+    const ref = doc(db, 'patients', patientId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      document.getElementById('loading').innerHTML = '<div style="text-align:center;padding:40px;color:#5a6a7a"><div style="font-size:48px;margin-bottom:16px">🔗</div><div style="font-size:16px;font-weight:600;margin-bottom:8px">Lien invalide ou expiré</div><div style="font-size:13px">Contactez votre kiné pour obtenir un nouveau lien.</div></div>';
+      return;
+    }
+    program = snap.data();
+    if (program.expiryDate && new Date(program.expiryDate) < new Date()) {
+      document.getElementById('loading').innerHTML = '<div style="text-align:center;padding:40px;color:#5a6a7a"><div style="font-size:48px;margin-bottom:16px">⏰</div><div style="font-size:16px;font-weight:600;margin-bottom:8px">Programme expiré</div><div style="font-size:13px">Votre kiné va vous envoyer un nouveau lien.</div></div>';
+      return;
+    }
+    patientChecked = new Array(program.exercises.length).fill(false);
+    const todayKey = 'checked_' + patientId + '_' + new Date().toDateString();
+    const saved = localStorage.getItem(todayKey);
+    if (saved) patientChecked = JSON.parse(saved);
+    const logKey = 'sessions_' + patientId;
+    const savedLog = localStorage.getItem(logKey);
+    if (savedLog) sessionLog = JSON.parse(savedLog);
+
+    document.getElementById('loading').style.display = 'none';
+    renderHome(); renderProgramme(); renderSuivi(); applyAccessMode();
+    listenMessages();
+    showScreen('p-home');
+
+    // Real-time updates from kiné
+    clearTimeout(timeout);
+    onSnapshot(ref, d => {
+      if (d.exists()) { program = d.data(); renderHome(); renderProgramme(); applyAccessMode(); }
+    });
+  } catch(e) {
+    clearTimeout(timeout);
+    console.error('Firebase error:', e);
+    document.getElementById('loading').innerHTML = '<div style="text-align:center;padding:40px;color:#5a6a7a"><div style="font-size:48px;margin-bottom:16px">⚠️</div><div style="font-size:15px;font-weight:600;margin-bottom:8px">Erreur de chargement</div><div style="font-size:13px;margin-bottom:16px">Vérifiez votre connexion internet.</div><button onclick="location.reload()" style="background:#1a4a7a;color:white;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer">🔄 Réessayer</button></div>';
+  }
+}
+
+function saveChecked() {
+  const todayKey = 'checked_' + patientId + '_' + new Date().toDateString();
+  localStorage.setItem(todayKey, JSON.stringify(patientChecked));
+  const today = new Date().toLocaleDateString('fr-FR', {weekday:'long',day:'numeric',month:'long'});
+  const existing = sessionLog.find(s => s.date === today);
+  const done = patientChecked.filter(Boolean).length;
+  if (!existing) sessionLog.unshift({date:today, done, total:program.exercises.length});
+  else existing.done = done;
+  localStorage.setItem('sessions_' + patientId, JSON.stringify(sessionLog.slice(0,20)));
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id !== 'p-timer') window.scrollTo(0,0);
+}
+window.showScreen = showScreen;
+
+function daysLeft(d) { if(!d) return 999; return Math.ceil((new Date(d)-new Date())/86400000); }
+
+// ── YOUTUBE URL PARSER ──
+function getYouTubeEmbedUrl(url) {
+  if (!url) return null;
+  const patterns = [
+    /youtube\.com\/watch\?v=([^&]+)/,
+    /youtu\.be\/([^?]+)/,
+    /youtube\.com\/embed\/([^?]+)/,
+    /vimeo\.com\/(\d+)/
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) {
+      if (url.includes('vimeo')) return 'https://player.vimeo.com/video/' + m[1];
+      return 'https://www.youtube.com/embed/' + m[1] + '?playsinline=1';
+    }
+  }
+  return null;
+}
+
+// ── RENDER HOME ──
+function renderHome() {
+  if (!program) return;
+  const g = id => document.getElementById(id);
+  g('p-greeting').textContent = 'Bonjour, ' + program.prenom + ' 👋';
+  g('p-patho-badge').textContent = program.pathoLabel;
+  const days = daysLeft(program.expiryDate);
+  g('p-countdown').innerHTML = days > 0 ? 'Programme valable encore <strong style="color:white">'+days+' jours</strong>' : 'Programme en cours';
+  g('p-kine-sub') && (g('p-kine-sub').textContent = 'Votre kiné · Répond sous 24h');
+  const done = patientChecked.filter(Boolean).length;
+  const total = program.exercises.length;
+  const pct = total ? Math.round(done/total*100) : 0;
+  g('p-pct').textContent = pct+'%'; g('p-fill').style.width = pct+'%';
+  g('p-motiv-title').textContent = program.pathoLabel + ' · Mode ' + program.mode;
+  g('p-motiv-sub').textContent = total + ' exercices · ' + (program.freq||'3x/semaine');
+  const days7=['L','M','M','J','V','S','D'];
+  const today = new Date().getDay(); const todayIdx = today===0?6:today-1;
+  g('p-week-days').innerHTML = days7.map((d,i)=>'<div class="day-bubble '+(i<todayIdx?'done':i===todayIdx?'today':'')+'">' +d+'</div>').join('');
+  g('p-week-count').textContent = todayIdx + '/7 jours';
+
+  g('p-exercise-cards').innerHTML = program.exercises.map((ex, i) => {
+    const isDone = patientChecked[i];
+    const hasMaintien = ex.maintien && ex.maintien.trim();
+    const bilateral = ex.bilateral;
+    return `<div class="exercise-card ${isDone?'done':''}" onclick="openExercise(${i})">
+      <div class="ex-photo-banner">
+        ${ex.photo?'<img src="'+ex.photo+'">':(ex.videoUrl&&getYouTubeEmbedUrl(ex.videoUrl))?'<span style="font-size:36px">▶️</span>':'<span style="font-size:40px">'+(ex.emoji||'📋')+'</span>'}
+        ${isDone?'<div class="ex-done-overlay">✓</div>':''}
+      </div>
+      <div class="ex-body">
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-meta">${ex.series} × ${ex.reps} · Repos ${ex.repos}${bilateral?' · '+bilateral:''}</div>
+        <div class="ex-footer">
+          <div class="muscle-tags">${(ex.muscles||'').split(' · ').map(m=>'<span class="muscle-tag">'+m+'</span>').join('')}</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            ${hasMaintien?'<span style="font-size:16px">⏱</span>':''}
+            <div class="ex-check ${isDone?'checked':''}" onclick="toggleCheck(event,${i})">${isDone?'✓':''}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderProgramme() {
+  if (!program) return;
+  document.getElementById('p-prog-sub').textContent = program.exercises.length + ' exercices · Mode ' + program.mode;
+  document.getElementById('p-programme-list').innerHTML = program.exercises.map((ex,i) => `
+    <div class="exercise-card" onclick="openExercise(${i})">
+      <div class="ex-photo-banner" style="height:80px">
+        ${ex.photo?'<img src="'+ex.photo+'">':'<span style="font-size:32px">'+(ex.emoji||'📋')+'</span>'}
+      </div>
+      <div class="ex-body">
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-meta">${ex.series} × ${ex.reps} · Repos ${ex.repos} · ${ex.muscles||''}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderSuivi() {
+  if (!program) return;
+  const days = daysLeft(program.expiryDate);
+  document.getElementById('p-suivi-sub').textContent = days>0?days+' jours restants':'—';
+  document.getElementById('p-days-left').textContent = days>0?days+'j':'—';
+  document.getElementById('p-stat-seances').textContent = sessionLog.length;
+  const pct = sessionLog.length>0?Math.round(sessionLog.filter(s=>s.done===s.total).length/sessionLog.length*100):0;
+  document.getElementById('p-stat-assiduite').textContent = pct+'%';
+  const hist = document.getElementById('p-historique');
+  if (!sessionLog.length) { hist.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-soft);font-size:13px">Aucune séance enregistrée pour l\'instant</div>'; return; }
+  hist.innerHTML = sessionLog.slice(0,8).map((s,i)=>`<div class="session-item" ${i===Math.min(sessionLog.length-1,7)?'style="border:none"':''}><div class="session-dot ${s.done===0?'missed':''}"></div><div class="session-date">${s.date}</div><div class="session-badge ${s.done>0?'ok':'miss'}">${s.done>0?'✓ '+s.done+'/'+s.total:'Repos'}</div></div>`).join('');
+}
+
+// ── OPEN EXERCISE ──
+window.openExercise = function(i) {
+  currentExIndex = i;
+  const ex = program.exercises[i];
+  document.getElementById('pd-title').textContent = ex.name;
+  document.getElementById('pd-sub').textContent = ex.muscles || '';
+  document.getElementById('pd-badge').textContent = 'Mode ' + program.mode;
+  document.getElementById('pd-how').textContent = ex.how || 'Suivez les instructions de votre kiné.';
+  document.getElementById('pd-why').textContent = ex.why || 'Cet exercice est essentiel à votre récupération.';
+
+  // Photo or emoji
+  const photo = document.getElementById('pd-photo-container');
+  if (ex.photo) { photo.className=''; photo.innerHTML='<img src="'+ex.photo+'" class="detail-hero-photo">'; }
+  else { photo.className='detail-hero-emoji'; photo.textContent = ex.emoji||'📋'; }
+
+  // Video
+  const videoSection = document.getElementById('pd-video-section');
+  const videoContainer = document.getElementById('pd-video-container');
+  const embedUrl = getYouTubeEmbedUrl(ex.videoUrl);
+  if (embedUrl) {
+    videoSection.style.display = 'block';
+    videoContainer.innerHTML = '<iframe src="'+embedUrl+'" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>';
+  } else { videoSection.style.display = 'none'; videoContainer.innerHTML = ''; }
+
+  // Dosage grid
+  const grid = document.getElementById('pd-dosage-grid');
+  const items = [
+    {val:ex.series, label:'Séries'},
+    {val:ex.reps, label:'Reps/Durée'},
+    {val:ex.repos, label:'Repos'},
+  ];
+  if (ex.maintien) items.push({val:ex.maintien, label:'Maintien'});
+  if (ex.poids && ex.poidsType) {
+    const u = ex.poidsType==='kg'?'kg':ex.poidsType==='poids_corps'?'% PC':'kg+él.';
+    items.push({val:ex.poids+' '+u, label:'Charge'});
+  }
+  const mat = ex.materiel||[];
+  if (mat.includes('elastique')) {
+    const niv = mat.includes('fort')?'Fort':mat.includes('moyen')?'Moyen':mat.includes('leger')?'Léger':'';
+    items.push({val:'🔴'+(niv?' '+niv:''), label:'Élastique'});
+  }
+  if (mat.includes('ballon')) items.push({val:'🟡 Ballon', label:'Matériel'});
+  if (mat.includes('halteres')) items.push({val:'🏋️', label:'Haltères'});
+  if (ex.freq) items.push({val:ex.freq, label:'Fréquence'});
+  grid.style.gridTemplateColumns = items.length<=3?'repeat(3,1fr)':'repeat(3,1fr)';
+  grid.innerHTML = items.map(it=>'<div class="dosage-item"><span class="dosage-num">'+it.val+'</span><div class="dosage-label">'+it.label+'</div></div>').join('');
+
+  // Bilatéral
+  const bilEl = document.getElementById('pd-bilateral');
+  if (ex.bilateral && ex.bilateral !== 'Non précisé') {
+    bilEl.innerHTML = '<span class="bilateral-badge">'+ex.bilateral+'</span>';
+  } else bilEl.innerHTML = '';
+
+  // Notes
+  const noteEl = document.getElementById('pd-note-patient');
+  if (ex.notePatient) { noteEl.style.display='flex'; document.getElementById('pd-note-text').textContent=ex.notePatient; } else noteEl.style.display='none';
+  const updateEl = document.getElementById('pd-update-note');
+  if (ex.updateNote) { updateEl.style.display='flex'; document.getElementById('pd-update-text').textContent=ex.updateNote; } else updateEl.style.display='none';
+
+  // Timer button
+  const timerBtn = document.getElementById('pd-timer-btn');
+  if (ex.maintien && ex.maintien.trim()) {
+    timerBtn.style.display = 'flex';
+    timerBtn.textContent = '⏱ Chronomètre · ' + ex.series + ' séries de ' + ex.maintien;
+  } else { timerBtn.style.display = 'none'; }
+
+  // Done button
+  const btn = document.getElementById('pd-done-btn');
+  if (patientChecked[i]) { btn.textContent='✓ Déjà fait aujourd\'hui !'; btn.classList.add('already'); }
+  else { btn.textContent='✓ Exercice terminé !'; btn.classList.remove('already'); }
+
+  showScreen('p-exercise');
+};
+
+window.markDone = function() {
+  if (patientChecked[currentExIndex]) return;
+  patientChecked[currentExIndex] = true;
+  document.getElementById('pd-done-btn').textContent = '✓ Déjà fait aujourd\'hui !';
+  document.getElementById('pd-done-btn').classList.add('already');
+  saveChecked(); renderHome();
+  showToast('💪 Exercice validé !');
+  setTimeout(() => showScreen('p-home'), 1100);
+};
+
+window.toggleCheck = function(e, i) {
+  e.stopPropagation();
+  patientChecked[i] = !patientChecked[i];
+  saveChecked(); renderHome();
+  if (patientChecked[i]) showToast('Bien joué ! 💪');
+};
+
+// ── TIMER ──
+window.startTimer = function() {
+  const ex = program.exercises[currentExIndex];
+  timerExIndex = currentExIndex;
+  timerTotalSeries = parseInt(ex.series) || 3;
+  timerCurrentSeries = 1;
+
+  // Parse maintien seconds
+  const m = (ex.maintien||'').match(/(\d+)/);
+  timerWorkSecs = m ? parseInt(m[1]) : 30;
+
+  // Parse repos seconds
+  const r = (ex.repos||'').match(/(\d+)/);
+  timerRestSecs = r ? parseInt(r[1]) : 30;
+
+  renderSeriesDots();
+  startPhase('work');
+  showScreen('p-timer');
+};
+
+function renderSeriesDots() {
+  const dots = document.getElementById('t-dots');
+  dots.innerHTML = Array.from({length:timerTotalSeries}, (_,i) =>
+    '<div class="series-dot '+(i+1<timerCurrentSeries?'done':i+1===timerCurrentSeries?'current':'')+'">'+'</div>'
+  ).join('');
+}
+
+function startPhase(phase) {
+  timerPhase = phase;
+  clearInterval(timerInterval);
+  timerPaused = false;
+  document.getElementById('t-pause-btn').textContent = '⏸ Pause';
+
+  if (phase === 'work') {
+    timerSeconds = timerWorkSecs;
+    timerTotal = timerWorkSecs;
+    document.getElementById('t-phase').textContent = 'MAINTIEN';
+    document.getElementById('t-phase').style.color = 'rgba(255,255,255,0.6)';
+    document.getElementById('t-progress').className = 'timer-progress';
+  } else {
+    timerSeconds = timerRestSecs;
+    timerTotal = timerRestSecs;
+    document.getElementById('t-phase').textContent = 'REPOS';
+    document.getElementById('t-phase').style.color = 'var(--orange)';
+    document.getElementById('t-progress').className = 'timer-progress rest';
+    beepEnd();
+  }
+
+  const ex = program.exercises[timerExIndex];
+  document.getElementById('t-ex-name').textContent = ex.name;
+  document.getElementById('t-series-info').textContent = 'Série ' + timerCurrentSeries + ' sur ' + timerTotalSeries;
+  updateTimerDisplay();
+
+  timerInterval = setInterval(() => {
+    if (timerPaused) return;
+    timerSeconds--;
+    // Bip at 3 2 1
+    if (timerSeconds <= 3 && timerSeconds > 0) beep(660, 0.1, 0.3);
+    updateTimerDisplay();
+    if (timerSeconds <= 0) {
+      clearInterval(timerInterval);
+      if (timerPhase === 'work') {
+        startPhase('rest');
+      } else {
+        // Rest done
+        if (timerCurrentSeries < timerTotalSeries) {
+          timerCurrentSeries++;
+          renderSeriesDots();
+          startPhase('work');
+        } else {
+          // All series done
+          beepFinish();
+          clearInterval(timerInterval);
+          document.getElementById('t-phase').textContent = '🎉 TERMINÉ !';
+          document.getElementById('t-seconds').textContent = '✓';
+          document.getElementById('t-label').textContent = 'Bravo !';
+          setTimeout(() => {
+            patientChecked[timerExIndex] = true;
+            saveChecked(); renderHome();
+            showScreen('p-home');
+            showToast('💪 Exercice terminé !');
+          }, 2500);
+        }
+      }
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  document.getElementById('t-seconds').textContent = timerSeconds;
+  document.getElementById('t-label').textContent = timerPhase === 'work' ? 'secondes de maintien' : 'secondes de repos';
+  // Progress circle: circumference = 2*PI*100 ≈ 628
+  const pct = timerSeconds / timerTotal;
+  const offset = 628 * (1 - pct);
+  document.getElementById('t-progress').style.strokeDashoffset = offset;
+}
+
+window.togglePause = function() {
+  timerPaused = !timerPaused;
+  document.getElementById('t-pause-btn').textContent = timerPaused ? '▶️ Reprendre' : '⏸ Pause';
+};
+
+window.skipPhase = function() {
+  clearInterval(timerInterval);
+  timerSeconds = 0;
+  if (timerPhase === 'work') { startPhase('rest'); }
+  else {
+    if (timerCurrentSeries < timerTotalSeries) { timerCurrentSeries++; renderSeriesDots(); startPhase('work'); }
+    else { beepFinish(); patientChecked[timerExIndex]=true; saveChecked(); renderHome(); showScreen('p-home'); showToast('💪 Exercice terminé !'); }
+  }
+};
+
+window.stopTimer = function() {
+  clearInterval(timerInterval);
+  showScreen('p-exercise');
+};
+
+// ── MESSAGES ──
+window.selectType = function(el, type) {
+  currentMsgType = type;
+  document.querySelectorAll('#p-type-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+};
+
+window.sendMessage = async function() {
+  const txt = document.getElementById('p-msg-input').value.trim();
+  if (!txt) { showToast('Ecrivez votre message'); return; }
+  try {
+    await addDoc(collection(db,'messages'), {
+      patientId, patientName: program.prenom+' '+program.initiale,
+      type: currentMsgType, text: txt,
+      timestamp: serverTimestamp(), read: false, reply: null
+    });
+    document.getElementById('p-msg-input').value = '';
+    showToast('Message envoyé à votre kiné 📨');
+  } catch(e) { showToast('Erreur envoi, reessayez'); }
+};
+
+function listenMessages() {
+  const q = query(collection(db,'messages'), orderBy('timestamp','desc'));
+  onSnapshot(q, snap => {
+    const mine = snap.docs.filter(d=>d.data().patientId===patientId).map(d=>({id:d.id,...d.data()}));
+    const thread = document.getElementById('p-thread');
+    if (!mine.length) { thread.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-soft);font-size:13px">Vos messages apparaîtront ici</div>'; return; }
+    thread.innerHTML = mine.map(m => {
+      const ts = m.timestamp?new Date(m.timestamp.toDate()).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'—';
+      return '<div style="margin-bottom:10px"><div class="remark-card"><div class="remark-header"><span class="remark-from">'+m.type+'</span><span class="remark-time">'+ts+'</span></div><div class="remark-text">« '+m.text+' »</div></div>'+(m.reply?'<div style="background:var(--primary-light);border-radius:0 12px 12px 12px;padding:10px 14px;font-size:13px;color:var(--primary);margin-top:-4px;margin-left:16px">↩️ <strong>Votre kiné :</strong> '+m.reply+'</div>':'<div style="font-size:11px;color:var(--text-soft);margin-left:16px;margin-top:4px;font-style:italic">En attente de réponse…</div>')+'</div>';
+    }).join('');
+  });
+}
+
+// ── ACCESS MODE ──
+function applyAccessMode() {
+  const mode = program.accessMode || 'complet';
+  const complet = document.getElementById('p-kine-complet');
+  const lecture = document.getElementById('p-kine-lecture');
+  const kineNav = document.querySelector('.nav-item:last-child .nl');
+  if (mode === 'lecture') {
+    if(complet) complet.style.display = 'none';
+    if(lecture) lecture.style.display = 'block';
+    if(kineNav) kineNav.textContent = 'Programme';
+  } else {
+    if(complet) complet.style.display = 'block';
+    if(lecture) lecture.style.display = 'none';
+  }
+  // Populate exercise select for proposals
+  const sel = document.getElementById('prop-exo-select');
+  if (sel && program.exercises) {
+    sel.innerHTML = program.exercises.map((ex,i) =>
+      '<option value="'+i+'">'+(ex.emoji||'📋')+' '+ex.name+'</option>'
+    ).join('');
+  }
+}
+
+// ── PATIENT ACTEUR ──
+let propType = 'modification';
+
+window.selectPropType = function(el, type) {
+  propType = type;
+  document.querySelectorAll('#p-acteur-section .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('prop-modif-section').style.display = type==='modification'?'block':'none';
+  document.getElementById('prop-new-section').style.display = type==='nouvel_exo'?'block':'none';
+};
+
+window.sendProposal = async function() {
+  let text = '';
+  let exName = '';
+  if (propType === 'modification') {
+    const sel = document.getElementById('prop-exo-select');
+    const idx = parseInt(sel.value);
+    exName = program.exercises[idx] ? program.exercises[idx].name : '';
+    text = document.getElementById('prop-modif-text').value.trim();
+    if (!text) { showToast('Decrivez votre proposition'); return; }
+    text = 'Modification de "'+exName+'" : '+text;
+  } else {
+    text = document.getElementById('prop-new-text').value.trim();
+    if (!text) { showToast('Decrivez votre proposition'); return; }
+    text = 'Nouvel exercice proposé : '+text;
+  }
+  try {
+    await addDoc(collection(db,'messages'), {
+      patientId,
+      patientName: program.prenom+' '+program.initiale,
+      type: '💡 Proposition patient',
+      text,
+      timestamp: serverTimestamp(),
+      read: false,
+      reply: null,
+      isProposal: true,
+      proposalType: propType,
+      proposalStatus: 'pending'
+    });
+    document.getElementById('prop-modif-text').value = '';
+    document.getElementById('prop-new-text').value = '';
+    showToast('Proposition envoyée à votre kiné 📤');
+  } catch(e) { showToast('Erreur envoi'); }
+};
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+loadProgram();
+</script>
+</body>
+</html>
