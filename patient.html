@@ -904,7 +904,7 @@ let st = {
   phase: 'ready' // ready | working | resting | finished
 };
 
-function stOpen() {
+window.stOpen = function() {
   const ex = program.exercises[currentExIndex];
   st.totalSeries = parseInt(ex.series) || 3;
   st.currentSeries = 1;
@@ -927,13 +927,13 @@ function stOpen() {
   stUpdateDisplay();
 }
 
-function stClose() {
+window.stClose = function() {
   clearInterval(st.interval);
   document.getElementById('pd-series-timer').style.display = 'none';
   document.getElementById('pd-open-timer-btn').style.display = 'flex';
 }
 
-function stRenderDots() {
+window.stRenderDots = function() {
   const dots = document.getElementById('st-dots');
   if (!dots) return;
   dots.innerHTML = Array.from({length: st.totalSeries}, (_, i) => {
@@ -944,7 +944,7 @@ function stRenderDots() {
   document.getElementById('st-counter').textContent = 'Série ' + st.currentSeries + ' / ' + st.totalSeries;
 }
 
-function stSetState(state) {
+window.stSetState = function(state) {
   st.phase = state;
   ['ready','working','resting','finished'].forEach(s => {
     const el = document.getElementById('st-state-' + s);
@@ -960,7 +960,7 @@ function stSetState(state) {
   else if (state === 'finished') { label.textContent = 'TERMINE !'; label.className = 'timer-phase-label'; }
 }
 
-function stUpdateDisplay() {
+window.stUpdateDisplay = function() {
   const el = document.getElementById('st-time');
   if (!el) return;
   let secs;
