@@ -347,11 +347,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="scroll-area">
     <div class="tabs" id="lib-tabs">
       <div class="tab active" onclick="filterLib('tous',this)">Tous</div>
-      <div class="tab" onclick="filterLib('genou',this)">Genou</div>
-      <div class="tab" onclick="filterLib('hanche',this)">Hanche</div>
+      <div class="tab" onclick="filterLib('global',this)">Global</div>
+      <div class="tab" onclick="filterLib('cervicale',this)">Cervicale</div>
       <div class="tab" onclick="filterLib('dos',this)">Dos</div>
       <div class="tab" onclick="filterLib('epaule',this)">Épaule</div>
-      <div class="tab" onclick="filterLib('global',this)">Global</div>
+      <div class="tab" onclick="filterLib('coude',this)">Coude</div>
+      <div class="tab" onclick="filterLib('main',this)">Main</div>
+      <div class="tab" onclick="filterLib('hanche',this)">Hanche</div>
+      <div class="tab" onclick="filterLib('genou',this)">Genou</div>
+      <div class="tab" onclick="filterLib('cheville',this)">Cheville</div>
       <div id="custom-lib-tabs"></div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:12px">
@@ -465,27 +469,58 @@ const db = getFirestore(app);
 const BASE_URL = 'https://doudidoux.github.io/kinesuivi/files/patient.html';
 
 const EXERCISE_DB = [
-  {id:1,emoji:'🧱',name:'Squat isométrique',cat:'genou',muscles:'Quadriceps · Contrôle moteur',photo:null,defaultSeries:3,defaultReps:'45 sec',defaultRepos:'30s',freq:'3x/sem',how:'Dos bien plaqué contre le mur, cuisses parallèles au sol. Maintenez la position sans bouger. Respirez normalement.',why:'Un quadriceps fort avant l\'opération récupère 2x plus vite après. C\'est votre meilleur investissement.'},
-  {id:2,emoji:'🦵',name:'Pont fessier unilatéral',cat:'hanche',muscles:'Moyen fessier · Ischio-jambiers',photo:null,defaultSeries:3,defaultReps:'12 reps',defaultRepos:'45s',freq:'3x/sem',how:'Allongé sur le dos, un genou fléchi. Décollez le bassin en serrant les fesses. Gardez le bassin horizontal.',why:'Le moyen fessier stabilise votre genou lors de la marche et réduit le risque de re-rupture.'},
-  {id:3,emoji:'🪲',name:'Dead bug',cat:'dos',muscles:'Gainage profond · Stabilité',photo:null,defaultSeries:3,defaultReps:'8 reps',defaultRepos:'45s',freq:'3x/sem',how:'Sur le dos, bras vers le plafond, genoux à 90°. Descendez un bras et la jambe opposée en gardant le dos plaqué.',why:'Stabilise le bassin et protège le genou lors de chaque mouvement.'},
-  {id:4,emoji:'🦩',name:'Équilibre unipodal',cat:'genou',muscles:'Proprioception · Contrôle moteur',photo:null,defaultSeries:3,defaultReps:'30 sec',defaultRepos:'30s',freq:'3x/sem',how:'Sur un pied, regard fixe. Yeux ouverts d\'abord, puis fermés. Restez proche d\'un mur.',why:'Rééduque votre cerveau à contrôler le genou — essentiel pour prévenir une nouvelle blessure.'},
-  {id:5,emoji:'🚶',name:'Fentes avant',cat:'genou',muscles:'Quadriceps · Fessiers',photo:null,defaultSeries:3,defaultReps:'10 reps',defaultRepos:'60s',freq:'4x/sem',how:'Grand pas en avant, genou dans l\'axe du pied. Descendez doucement, remontez sur le talon.',why:'Prépare votre genou aux contraintes de la vraie vie.'},
+  // ── GENOU / LCA ──
+  {id:1,emoji:'🧱',name:'Squat isométrique',cat:'genou',muscles:'Quadriceps · Contrôle moteur',photo:null,defaultSeries:3,defaultReps:'45 sec',defaultRepos:'30s',freq:'3x/sem',how:'Dos plaqué contre le mur, cuisses parallèles au sol. Maintenez sans bouger. Respirez normalement.',why:'Renforce le quadriceps avant et après opération. Un muscle fort récupère 2x plus vite.'},
+  {id:2,emoji:'🦵',name:'Pont fessier unilatéral',cat:'genou',muscles:'Moyen fessier · Ischio-jambiers',photo:null,defaultSeries:3,defaultReps:'12 reps',defaultRepos:'45s',freq:'3x/sem',how:'Allongé sur le dos, un genou fléchi. Décollez le bassin en serrant les fesses. Gardez le bassin horizontal.',why:'Le moyen fessier stabilise le genou et réduit le risque de re-rupture.'},
+  {id:3,emoji:'🪲',name:'Dead bug',cat:'global',muscles:'Gainage profond · Stabilité',photo:null,defaultSeries:3,defaultReps:'8 reps',defaultRepos:'45s',freq:'3x/sem',how:'Sur le dos, bras vers le plafond, genoux à 90°. Descendez un bras et la jambe opposée en gardant le dos plaqué.',why:'Stabilise le bassin et protège le genou lors de chaque mouvement.'},
+  {id:4,emoji:'🦩',name:'Équilibre unipodal',cat:'genou',muscles:'Proprioception · Contrôle moteur',photo:null,defaultSeries:3,defaultReps:'30 sec',defaultRepos:'30s',freq:'3x/sem',how:'Sur un pied, regard fixe. Yeux ouverts puis fermés. Restez proche d un mur.',why:'Rééduque le cerveau à contrôler le genou — essentiel contre les récidives.'},
+  {id:5,emoji:'🚶',name:'Fentes avant',cat:'genou',muscles:'Quadriceps · Fessiers',photo:null,defaultSeries:3,defaultReps:'10 reps',defaultRepos:'60s',freq:'4x/sem',how:'Grand pas en avant, genou dans l axe du pied. Descendez doucement, remontez sur le talon.',why:'Prépare le genou aux contraintes fonctionnelles réelles.'},
   {id:6,emoji:'⚖️',name:'SL RDL unilatéral',cat:'hanche',muscles:'Ischio-jambiers · Équilibre',photo:null,defaultSeries:3,defaultReps:'8 reps',defaultRepos:'60s',freq:'4x/sem',how:'Sur un pied, penchez-vous en avant dos droit. Remontez lentement.',why:'Un des exercices les plus efficaces contre la re-rupture du LCA.'},
-  {id:7,emoji:'🦀',name:'Clamshell élastique',cat:'hanche',muscles:'Moyen fessier · Rotateurs ext.',photo:null,defaultSeries:3,defaultReps:'15 reps',defaultRepos:'45s',freq:'4x/sem',how:'Sur le côté, hanches à 45°. Élastique aux cuisses. Ouvrez le genou du dessus sans bouger le bassin.',why:'Contrôle le valgus du genou — mécanisme principal de re-rupture du LCA.'},
+  {id:7,emoji:'🦀',name:'Clamshell élastique',cat:'hanche',muscles:'Moyen fessier · Rotateurs ext.',photo:null,defaultSeries:3,defaultReps:'15 reps',defaultRepos:'45s',freq:'4x/sem',how:'Sur le côté, hanches à 45°. Élastique aux cuisses. Ouvrez le genou du dessus sans bouger le bassin.',why:'Contrôle le valgus du genou — mécanisme principal de re-rupture.'},
   {id:8,emoji:'🏗️',name:'Gainage latéral',cat:'global',muscles:'Chaîne latérale · Obliques',photo:null,defaultSeries:3,defaultReps:'30 sec',defaultRepos:'30s',freq:'4x/sem',how:'Appui sur avant-bras et côté du pied. Corps en ligne droite.',why:'Stabilise le bassin lors des activités unipodales.'},
-  {id:9,emoji:'🔄',name:'Rotation épaule résistée',cat:'epaule',muscles:'Coiffe des rotateurs',photo:null,defaultSeries:3,defaultReps:'15 reps',defaultRepos:'30s',freq:'3x/sem',how:'Coude collé au corps à 90°. Rotation externe lente avec élastique.',why:'Stabilise l\'articulation et prévient les récidives.'},
+  {id:9,emoji:'🔄',name:'Rotation épaule résistée',cat:'epaule',muscles:'Coiffe des rotateurs',photo:null,defaultSeries:3,defaultReps:'15 reps',defaultRepos:'30s',freq:'3x/sem',how:'Coude collé au corps à 90°. Rotation externe lente avec élastique.',why:'Stabilise l épaule et prévient les récidives.'},
   {id:10,emoji:'🧘',name:'Gainage ventral',cat:'global',muscles:'Transverse · Core profond',photo:null,defaultSeries:3,defaultReps:'40 sec',defaultRepos:'20s',freq:'4x/sem',how:'Avant-bras et pointes de pieds. Corps rigide, dos plat.',why:'Votre corset naturel. Protège le dos et améliore tous vos mouvements.'},
   {id:11,emoji:'🐛',name:'Superman',cat:'dos',muscles:'Érecteurs du rachis · Fessiers',photo:null,defaultSeries:3,defaultReps:'10 reps',defaultRepos:'30s',freq:'3x/sem',how:'Sur le ventre. Levez bras et jambes opposés, 2s de maintien.',why:'Renforce la chaîne postérieure pour soutenir le bas du dos.'},
-  {id:12,emoji:'🦶',name:'Montée sur pointes',cat:'genou',muscles:'Soléaire · Gastrocnémien',photo:null,defaultSeries:3,defaultReps:'20 reps',defaultRepos:'30s',freq:'3x/sem',how:'Debout. Montez lentement sur les pointes (2s), redescendez en 3s.',why:'Renforce le mollet et améliore la proprioception de la cheville.'},
+  {id:12,emoji:'🦶',name:'Montée sur pointes',cat:'cheville',muscles:'Soléaire · Gastrocnémien',photo:null,defaultSeries:3,defaultReps:'20 reps',defaultRepos:'30s',freq:'3x/sem',how:'Debout. Montez lentement sur les pointes (2s), redescendez en 3s.',why:'Renforce le mollet et améliore la proprioception de la cheville.'},
+  {id:13,emoji:'🐈',name:'Cat-Cow',cat:'global',muscles:'Rachis · Mobilité vertébrale',photo:null,defaultSeries:3,defaultReps:'10 reps',defaultRepos:'30s',freq:'4x/sem',how:'À 4 pattes. Arrondissez le dos vers le plafond (chat), puis creusez vers le sol (vache). Lent et contrôlé.',why:'Restaure la mobilité vertébrale et soulage les tensions du dos.'},
+  // ── CERVICALES ──
+  {id:20,emoji:'🦒',name:'Rétraction cervicale',cat:'cervicale',muscles:'Fléchisseurs profonds du cou',photo:null,defaultSeries:3,defaultReps:'10 reps',defaultRepos:'30s',freq:'4x/sem',how:'Assis dos droit. Rentrez le menton comme pour faire un double menton. Maintenez 5 secondes. Relâchez.',why:'Corrige la posture de la tête en avant et soulage les tensions cervicales.'},
+  {id:21,emoji:'↔️',name:'Rotation cervicale douce',cat:'cervicale',muscles:'Rotateurs cervicaux',photo:null,defaultSeries:2,defaultReps:'10 reps',defaultRepos:'20s',freq:'4x/sem',how:'Assis ou debout. Tournez la tête lentement d un côté puis de l autre. Allez jusqu au bout du mouvement sans forcer.',why:'Restaure la mobilité cervicale et réduit les raideurs.'},
+  {id:22,emoji:'🙆',name:'Étirement trapèze supérieur',cat:'cervicale',muscles:'Trapèze supérieur',photo:null,defaultSeries:3,defaultReps:'30 sec',defaultRepos:'20s',freq:'3x/sem',how:'Assis. Main droite dans le dos. Main gauche sur la tête, inclinez vers la gauche. Sentez l étirement côté droit. Changez de côté.',why:'Relâche les tensions du trapèze souvent responsables des cervicalgies.'},
+  {id:23,emoji:'💆',name:'Isométrique cervical',cat:'cervicale',muscles:'Muscles cervicaux profonds',photo:null,defaultSeries:3,defaultReps:'10 sec',defaultRepos:'20s',freq:'3x/sem',how:'Placez la main sur le front. Poussez la tête contre la main sans bouger. Maintenez 10 secondes. Répétez sur les côtés et derrière.',why:'Renforce les muscles stabilisateurs du cou sans mouvement articulaire.'},
+  // ── TRONC / LOMBAIRES ──
+  {id:24,emoji:'🦋',name:'Bird-Dog',cat:'dos',muscles:'Érecteurs · Fessiers · Stabilisateurs',photo:null,defaultSeries:3,defaultReps:'10 reps',defaultRepos:'30s',freq:'4x/sem',how:'À 4 pattes. Levez simultanément le bras droit et la jambe gauche. Maintenez 3 secondes. Alternez.',why:'Renforce les stabilisateurs lombaires en maintenant l équilibre du bassin.'},
+  // ── BASSIN ──
+  {id:25,emoji:'🔺',name:'Pont fessier bilatéral',cat:'bassin',muscles:'Grand fessier · Ischio-jambiers',photo:null,defaultSeries:3,defaultReps:'15 reps',defaultRepos:'30s',freq:'4x/sem',how:'Allongé sur le dos, genoux fléchis. Décollez le bassin en serrant les fesses. Maintenez 2 secondes en haut.',why:'Renforce les fessiers et soulage les douleurs du bassin.'},
+  // ── ÉPAULE / OMOPLATE ──
+  {id:26,emoji:'🦅',name:'Rétraction scapulaire',cat:'epaule',muscles:'Rhomboïdes · Trapèze moyen',photo:null,defaultSeries:3,defaultReps:'15 reps',defaultRepos:'30s',freq:'3x/sem',how:'Assis ou debout. Serrez les omoplates l une vers l autre comme pour tenir un crayon entre elles. Maintenez 5 secondes.',why:'Stabilise l omoplate et soulage les douleurs d épaule liées à la posture.'},
+  {id:27,emoji:'🏊',name:'Nageur prone',cat:'epaule',muscles:'Épaule · Rhomboïdes · Trapèze',photo:null,defaultSeries:3,defaultReps:'12 reps',defaultRepos:'30s',freq:'3x/sem',how:'Sur le ventre, bras le long du corps. Levez les deux bras en les écartant en Y. Maintenez 3 secondes.',why:'Renforce la coiffe des rotateurs et les stabilisateurs de l omoplate.'},
+  {id:28,emoji:'🎯',name:'Élévation antérieure épaule',cat:'epaule',muscles:'Deltoïde antérieur · Coiffe',photo:null,defaultSeries:3,defaultReps:'12 reps',defaultRepos:'45s',freq:'3x/sem',how:'Debout, bras le long du corps. Montez le bras tendu devant vous jusqu à l horizontale. Redescendez lentement.',why:'Renforce progressivement l épaule après blessure ou chirurgie.'},
+  // ── COUDE ──
+  {id:29,emoji:'💪',name:'Curl biceps excentrique',cat:'coude',muscles:'Biceps brachial',photo:null,defaultSeries:3,defaultReps:'10 reps',defaultRepos:'45s',freq:'3x/sem',how:'Avec un petit poids ou élastique. Fléchissez le coude puis redescendez très lentement en 5 secondes.',why:'Le travail excentrique est le plus efficace pour les tendinopathies du coude.'},
+  {id:30,emoji:'🤙',name:'Supination/Pronation poignet',cat:'coude',muscles:'Supinateur · Pronateur',photo:null,defaultSeries:3,defaultReps:'15 reps',defaultRepos:'30s',freq:'3x/sem',how:'Coude fléchi à 90°, bras collé au corps. Tournez la paume vers le haut puis vers le bas lentement.',why:'Restaure la mobilité de rotation de l avant-bras souvent limitée après blessure.'},
+  // ── MAIN / POIGNET ──
+  {id:31,emoji:'✊',name:'Renforcement prise main',cat:'main',muscles:'Fléchisseurs doigts · Interosseux',photo:null,defaultSeries:3,defaultReps:'15 reps',defaultRepos:'20s',freq:'4x/sem',how:'Serrez une balle de rééducation ou un rouleau de gaze. Maintenez 3 secondes. Relâchez complètement.',why:'Restaure la force de préhension après fracture ou chirurgie de la main.'},
+  {id:32,emoji:'🖐️',name:'Mobilisation poignet',cat:'main',muscles:'Fléchisseurs · Extenseurs poignet',photo:null,defaultSeries:2,defaultReps:'10 reps',defaultRepos:'20s',freq:'4x/sem',how:'Avant-bras posé sur une table. Fléchissez et étendez le poignet lentement. Puis mouvements latéraux.',why:'Restaure l amplitude articulaire du poignet et prévient les raideurs.'},
+  // ── CHEVILLE / PIED ──
+  {id:33,emoji:'🔄',name:'Cercles de cheville',cat:'cheville',muscles:'Muscles péri-articulaires cheville',photo:null,defaultSeries:2,defaultReps:'10 reps',defaultRepos:'20s',freq:'4x/sem',how:'Assis ou allongé. Faites des cercles avec le pied dans un sens puis dans l autre. Lentement, amplitude maximale.',why:'Restaure la mobilité articulaire et réduit les raideurs après entorse.'},
+  {id:34,emoji:'🦶',name:'Proprioception planche instable',cat:'cheville',muscles:'Stabilisateurs cheville · Proprioception',photo:null,defaultSeries:3,defaultReps:'30 sec',defaultRepos:'30s',freq:'3x/sem',how:'Sur un coussin d équilibre ou une serviette pliée. Tenez-vous sur un pied. Regard fixe devant vous.',why:'Rééduque les récepteurs proprioceptifs détruits lors de l entorse.'},
 ];
 
+;
+
 const PATHO_OPTIONS = [
-  {value:'lca',emoji:'🦵',label:'LCA / Genou',ids:[1,2,3,4]},
-  {value:'epaule',emoji:'💪',label:'Épaule',ids:[9,3,10,8]},
-  {value:'lombalgie',emoji:'🔙',label:'Lombalgies',ids:[3,11,10,8]},
+  {value:'global',emoji:'🏃',label:'Global',ids:[10,8,3,13]},
+  {value:'cervicale',emoji:'🦒',label:'Cervicale',ids:[20,21,22,23]},
+  {value:'tronc',emoji:'🔙',label:'Tronc / Lombaires',ids:[3,11,10,24]},
+  {value:'bassin',emoji:'🍑',label:'Bassin',ids:[2,7,25,8]},
+  {value:'epaule',emoji:'💪',label:'Épaule / Omoplate',ids:[9,26,27,28]},
+  {value:'coude',emoji:'🦾',label:'Coude',ids:[29,30,10,3]},
+  {value:'main',emoji:'✋',label:'Main / Poignet',ids:[31,32,10,3]},
   {value:'hanche',emoji:'🚶',label:'Hanche / PTH',ids:[2,6,7,5]},
-  {value:'cheville',emoji:'🦶',label:'Cheville',ids:[4,12,8,10]},
-  {value:'general',emoji:'🏃',label:'Général',ids:[10,8,3,2]},
+  {value:'genou',emoji:'🦵',label:'Genou simple',ids:[1,2,4,12]},
+  {value:'lca',emoji:'🏆',label:'Genou LCA',ids:[1,2,3,4]},
+  {value:'cheville',emoji:'🦶',label:'Pied / Cheville',ids:[4,12,33,34]},
 ];
 
 const BASE_DURATIONS = [{label:'2 semaines',weeks:2},{label:'4 semaines',weeks:4},{label:'6 semaines',weeks:6},{label:'3 mois',weeks:12}];
